@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="en">
+<head>
+  
+  <title>Library PWA</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#66545e">
+  <link rel="stylesheet" href="css.css" />
+
+  <link rel="apple-touch-icon" sizes="192x192" href="icons/icon-192.png">
+  <link rel="apple-touch-icon" sizes="512x512" href="icons/icon-512.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+
+
+  
+</head>
+<body>
+  <header class="app-header">
+  <h1 id="app-title">Your Library App</h1>
+  <button id="dark-mode-toggle">Dark Mode</button>
+</header>
+
+   <div class="app-content"> 
+    <div id="user-status" class="user-status"></div>
+
+
+
+   <main>
+      <section id="welcome-section" class="fade-in">
+  <div id="name-entry">
+    <h2>Welcome!</h2>
+    <p>What's your name?</p>
+    <form onsubmit="submitName(); return false;">
+      <input type="text" id="usernameInput" placeholder="Your name">
+      <button type="submit">Continue</button>
+    </form>
+  </div>
+
+  <div id="home-dashboard" style="display:none;">
+  <h2 id="greeting" style="font-size:26px; font-weight:700; letter-spacing:-0.5px; margin-bottom:4px;"></h2>
+  <p style="color:var(--text-secondary); font-size:15px; margin-bottom:32px;">Ready to keep reading?</p>
+
+  <p style="font-size:11px; font-weight:600; letter-spacing:0.8px; color:var(--text-secondary); margin-bottom:12px;">CONTINUE READING</p>
+  <div id="recent-books" style="margin-bottom:36px;">
+    <p id="no-recent" style="color:var(--text-secondary); font-size:15px; background:var(--card-bg); padding:16px; border-radius:12px;">No books opened yet.</p>
+  </div>
+
+  <p style="font-size:11px; font-weight:600; letter-spacing:0.8px; color:var(--text-secondary); margin-bottom:12px;">BROWSE</p>
+  <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+    <button onclick="showSection('library-section')" style="background:var(--card-bg); color:var(--text-color); border-radius:14px; padding:18px 12px; font-size:14px; font-weight:600; box-shadow:0 0 0 0.5px var(--border-color);">
+      My Library ▤
+    </button>
+    <button onclick="showSection('conversion-section')" style="background:var(--card-bg); color:var(--text-color); border-radius:14px; padding:18px 12px; font-size:14px; font-weight:600; box-shadow:0 0 0 0.5px var(--border-color);">
+      ⇄ Convert PDF
+    </button>
+  </div>
+</div>
+</section>
+
+<section id="library-section" class="fade-in" style="display:none;">
+  <h2>Library</h2>
+  <p>Your collection</p>
+  <ul id="libraryList" class="ios-group"></ul>
+  <input type="file" id="epubUpload" accept=".epub">
+  <button type="button" onclick="addToLibrary()">Add EPUB</button>
+</section>
+
+<!-- PDF to EPUB -->
+      <section id="conversion-section" class="fade-in" style="display:none;">
+        <h2>Convert PDF</h2>
+        <p>Upload your PDF and it'll be added to your library as an EPUB!</p>
+
+        <div id="conversion-idle">
+          <input type="file" id="pdfFileInput" accept="application/pdf">
+          <button type="button" onclick="convertPDF()">Convert to EPUB</button>
+        </div>
+
+        <div id="conversion-progress" style="display:none;margin-top:24px;">
+          <div style="background:var(--card-bg);border-radius:14px;padding:20px;box-shadow:0 0 0 0.5px var(--border-color);">
+            <div style="font-size:15px;font-weight:600;margin-bottom:4px;" id="conversion-status">Reading PDF…</div>
+            <div style="font-size:13px;color:var(--text-secondary);margin-bottom:16px;" id="conversion-detail"></div>
+            <div style="height:4px;background:var(--border-color);border-radius:99px;overflow:hidden;">
+              <div id="conversion-bar" style="height:100%;width:0%;background:var(--accent);border-radius:99px;transition:width 0.3s ease;"></div>
+            </div>
+          </div>
+        </div>
+
+        <div id="conversion-done" style="display:none;margin-top:24px;">
+          <div style="background:var(--card-bg);border-radius:14px;padding:20px;box-shadow:0 0 0 0.5px var(--border-color);margin-bottom:16px;">
+            <div style="font-size:15px;font-weight:600;margin-bottom:2px;" id="conversion-book-title"></div>
+            <div style="font-size:13px;color:var(--text-secondary);" id="conversion-book-meta"></div>
+          </div>
+          <a id="download-link" href="#" download="converted.epub"
+            style="display:block;width:100%;padding:14px;font-size:16px;font-weight:600;font-family:inherit;border-radius:12px;background:var(--accent);color:#1a1a1a;text-align:center;text-decoration:none;margin-bottom:10px;box-sizing:border-box;">
+            ↓ Download EPUB
+          </a>
+          <button type="button" onclick="showSection('library-section')"
+            style="margin-bottom:10px;">
+            Open Library
+          </button>
+          <button type="button" onclick="clearConversion()"
+            style="background:var(--card-bg);color:var(--text-secondary);box-shadow:0 0 0 0.5px var(--border-color);">
+            Convert Another
+          </button>
+        </div>
+      </section>
+
+<section id="help-section" class="fade-in" style="display: none;">
+  <h2>Help & Support</h2>
+  <p>Answers to some common questions.</p>
+
+  <p class="help-label">INSTALL ON iPHONE</p>
+  <div class="help-card">
+    <h3>Add to Home Screen</h3>
+    <p>You can add this app to your home screen so it works like a normal app.</p>
+    <ul class="step-list">
+      <li><div class="step-number">1</div><p>Open this app's link in <i>Safari</i> (or any other browsers).</p></li>
+      <li><div class="step-number">2</div><p>Tap the <strong>Share button</strong> at the bottom center of the screen.</p></li>
+      <li><div class="step-number">3</div><p>Scroll down and tap <strong>Add to Home Screen</strong>.</p></li>
+      <li><div class="step-number">4</div><p>Tap <strong>Add</strong> in the top right corner.</p></li>
+      <li><div class="step-number">5</div><p>The app icon appears on your home screen. It will now work fully offline as well!</p></li>
+    </ul>
+  </div>
+
+  <p class="help-label">PDF TO EPUB CONVERTER</p>
+  <div class="help-card">
+    <h3>Converting a PDF to EPUB</h3>
+    <p>This works best with text-based PDFs.</p>
+    <p>Go to the <strong>PDF → EPUB</strong> tab, pick your file, and tap Convert. The newly converted EPUB should show up in your library when it's done.</p>
+  </div>
+
+  <p class="help-label">FREQUENTLY ASKED QUESTIONS</p>
+  <div class="faq-container">
+    <details class="faq-item">
+      <summary>How do I change my name in the app?<span>›</span></summary>
+      <p>Go to the <strong>Home</strong> tab. Clear this site's data in your iPhone Settings → Safari → Advanced → Website Data. When reopned, the app will prompt a new name entry. All your books can be reuploaded from Files</p>
+    </details>
+    <details class="faq-item">
+      <summary>Where are my books saved outside of the app?<span>›</span></summary>
+      <p>Books are stored locally on your device. To save a copy outside the app, use the Download EPUB button after converting a PDF and find the book in your iPhone's Files app.</p>
+    </details>
+    <details class="faq-item">
+      <summary>How can I share books with my friends?<span>›</span></summary>
+      <p>After converting a PDF, tap Download EPUB to save the file. You can then share it via AirDrop, iMessage, email... ect from your Files app. Friends can acess the book with the same app or any other!.</p>
+    </details>
+  </div>
+
+  <p class="help-label">CONTACT & SUPPORT</p>
+  <div class="help-card">
+    <h3>Need more tailored help?</h3>
+    <p>Contact the developer if you have any other questions: <a href="mailto:yosan.gebreegziabher@gmail.com" style="color:var(--accent);text-decoration:none;font-weight:500;">yosan.gebreegziabher@gmail.com</a></p>
+  </div>
+</section>
+    
+
+
+
+    </main>
+  </div>
+
+  <nav class="app-tab-bar">
+    <button onclick="showSection('welcome-section'); loadHomeDashboard();">Home</button>
+    <button onclick="showSection('library-section')">Library</button>
+    <button onclick="showSection('conversion-section')">PDF → EPUB</button>
+    <button onclick="showSection('help-section')">Help</button>
+  </nav>
+
+  <!-- the Service Worker -->
+  <script>
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("./ServiceWorker.js")
+        .then(() => console.log("Service Worker registered"))
+        .catch(err => console.error("SW registration failed", err));
+    }
+  </script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <script src="https://unpkg.com/epubjs/dist/epub.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <script type="module" src="./js/app.js"></script>
+
+</body>
+</html>
+
