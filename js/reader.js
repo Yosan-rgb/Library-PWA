@@ -35,7 +35,7 @@ function saveHighlights(hl) { localStorage.setItem("highlights_" + bookId, JSON.
   }
   function resetHideTimer() {
     clearTimeout(hideTimer);
-    hideTimer = setTimeout(hideUI, 3500);
+    hideTimer = setTimeout(hideUI, 8000);
   }
 
   document.addEventListener("touchstart", function() { showUI(); }, { passive: true });
@@ -51,12 +51,14 @@ function saveHighlights(hl) { localStorage.setItem("highlights_" + bookId, JSON.
 
   // epub.js — paginated by default (Apple Books style) 
   var epub = ePub(book.data);
+  var viewerEl = document.getElementById("viewer");
   var rendition = epub.renderTo("viewer", {
-    width: "100%",
-    height: "100%",
+    width: viewerEl.offsetWidth,
+    height: viewerEl.offsetHeight,
     flow: "paginated",
-    spread: "none"
-  });
+    spread: "none",
+    allowScriptedContent: true
+});
 
   var savedCfi = localStorage.getItem("cfi_" + bookId);
   if (savedCfi) rendition.display(savedCfi);

@@ -172,9 +172,9 @@
   <!-- the Service Worker integration/ -->
   <script>
     if ("serviceWorker" in navigator) {
-      navigator.serviceWorker.register("ServiceWorker.js"), { scope: "/Library-PWA/" }
-        .then(() => console.log("Service Worker registered"))
-        .catch(err => console.error("SW registration failed", err));
+      navigator.serviceWorker.register("./ServiceWorker.js")
+  .then(() => console.log("Service Worker registered"))
+  .catch(err => console.error("SW registration failed", err));
     }
   </script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
