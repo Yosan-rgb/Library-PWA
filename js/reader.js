@@ -67,7 +67,19 @@ function saveHighlights(hl) { localStorage.setItem("highlights_" + bookId, JSON.
   var locationsReady = false;
 
 function updateProgress(cfi) {
-  if (!locationsReady || !cfi) return;
+  if (!cfi) return;
+  // show approximate progress even before locations are ready
+  if (!locationsReady) {
+    var spinePos = epub.spine.spineItems.findIndex(function(item) {
+      return cfi.indexOf(item.idref) !== -1;
+    });
+    if (spinePos !== -1) {
+      var approx = Math.round((spinePos / epub.spine.spineItems.length) * 100);
+      document.getElementById("progress-pct").textContent = approx + "%";
+      document.getElementById("progress-fill").style.width = approx + "%";
+    }
+    return;
+  }
   var raw = epub.locations.percentageFromCfi(cfi);
   if (raw === null || raw === undefined) return;
   var pct = Math.round(Math.max(0, Math.min(1, raw)) * 100);
@@ -76,19 +88,6 @@ function updateProgress(cfi) {
   localStorage.setItem("progress_" + bookId, pct / 100);
   if (window.autoMarkDone) window.autoMarkDone(bookId, pct);
 }
-
-epub.locations.generate(1024).then(function() {
-  locationsReady = true;
-  var cfi = localStorage.getItem("cfi_" + bookId);
-  if (cfi) updateProgress(cfi);
-});
-
-  rendition.on("relocated", function(location) {
-    var cfi = location.start.cfi;
-    localStorage.setItem("cfi_" + bookId, cfi);
-    updateProgress(cfi);
-    updateBookmarkIcon();
-  });
 
  // Tap zones + swipe — unified touch handler (iOS PWA compatible) ──
   var touchStartX = 0;
