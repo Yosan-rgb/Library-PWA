@@ -161,11 +161,12 @@
     </main>
   </div>
 
-<button onclick="showTab('welcome-tab'); loadHomePage();">Home</button>
-    <button onclick="showTab('library-tab')">Library</button>
-    <button onclick="showTab('conversion-tab')">PDF → EPUB</button>
-    <button onclick="showTab('help-tab')">Help</button>
-
+<nav class="app-tab-bar">
+  <button onclick="showTab('welcome-tab'); loadHomePage();">Home</button>
+  <button onclick="showTab('library-tab')">Library</button>
+  <button onclick="showTab('conversion-tab')">PDF → EPUB</button>
+  <button onclick="showTab('help-tab')">Help</button>
+</nav>
   <!-- the Service Worker integration/ -->
   <script>
     if ("serviceWorker" in navigator) {
