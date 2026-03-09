@@ -18,7 +18,7 @@ function showTab(id) {
   }
 
   //higlight the right tab at the bottom (uses tapmap to match section IDs to tab button indexes)
-  var tabMap = { "welcome-int": 0, "library-tab": 1, "conversion-tab": 2, "help-tab": 3 };
+  var tabMap = { "welcome-tab": 0, "library-tab": 1, "conversion-tab": 2, "help-tab": 3 };
   document.querySelectorAll(".app-tab-bar button").forEach(function(btn, i) {
     btn.classList.toggle("active", i === tabMap[id]);
   });
@@ -231,12 +231,12 @@ async function convertPDF() {
     setStatus("Building EPUB…", chapters.length + " chapters found", 75);
 
     var title = file.name.replace(/\.pdf$/i, "").replace(/[-_]/g, " ").trim();
-    var epubBlob = await makeEpub(bookTitle, chapters);
+    var epubBlob = await makeEpub(title, chapters);
 
     setStatus("Adding to library…", "", 90);
 
     // Add to library as a real EPUB file
-    var epubFile = new File([epubBlob], bookTitle + ".epub", { type: "application/epub+zip" });
+    var epubFile = new File([epubBlob], title + ".epub", { type: "application/epub+zip" });
     await saveBook(epubFile);
     await refreshLibrary();
 
@@ -351,7 +351,7 @@ function isHeading(line) {
     }
 
     // Skip page numbers
-    if (CheckIfPageNum(line)) return;
+     if (checkIFPageNum(line)) return;
     
 
     // Chapter heading — start new chapter
@@ -383,7 +383,7 @@ function isHeading(line) {
 
   saveChapter();
 
-  // If no chapters found, make one per N paragraphs
+  // if no chapters found, make one per N paragraphs
   if (chapters.length <= 1 && chapters[0] && chapters[0].paragraphs.length > 30) {
     var allParas = chapters[0].paragraphs;
     chapters = [];
@@ -520,7 +520,7 @@ document.addEventListener("DOMContentLoaded", async function() {
       toggleBtn.textContent = isDark ? "Light Mode" : "Dark Mode";
     });
   }
-  showTab("welcome-section");
+  showTab("welcome-tab");
   updateTitle();
   await loadHomePage();
   setupUI();

@@ -29,7 +29,7 @@
 
 
    <main>
-      <section id="welcome-section" class="fade-in">
+      <section id="welcome-tab" class="fade-in">
   <div id="name-entry">
     <h2>Welcome!</h2>
     <p>What's your name?</p>
@@ -50,17 +50,17 @@
 
   <p style="font-size:11px; font-weight:600; letter-spacing:0.8px; color:var(--text-secondary); margin-bottom:12px;">BROWSE</p>
   <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
-    <button onclick="showSection('library-section')" style="background:var(--card-bg); color:var(--text-color); border-radius:14px; padding:18px 12px; font-size:14px; font-weight:600; box-shadow:0 0 0 0.5px var(--border-color);">
+    <button onclick="showSection('library-tab')" style="background:var(--card-bg); color:var(--text-color); border-radius:14px; padding:18px 12px; font-size:14px; font-weight:600; box-shadow:0 0 0 0.5px var(--border-color);">
       My Library ▤
     </button>
-    <button onclick="showSection('conversion-section')" style="background:var(--card-bg); color:var(--text-color); border-radius:14px; padding:18px 12px; font-size:14px; font-weight:600; box-shadow:0 0 0 0.5px var(--border-color);">
+    <button onclick="showSection('conversion-tab')" style="background:var(--card-bg); color:var(--text-color); border-radius:14px; padding:18px 12px; font-size:14px; font-weight:600; box-shadow:0 0 0 0.5px var(--border-color);">
       ⇄ Convert PDF
     </button>
   </div>
 </div>
 </section>
 
-<section id="library-section" class="fade-in" style="display:none;">
+<section id="library-tab" class="fade-in" style="display:none;">
   <h2>Library</h2>
   <p>Your collection</p>
   <ul id="libraryList" class="ios-group"></ul>
@@ -69,7 +69,7 @@
 </section>
 
 <!-- PDF to EPUB -->
-      <section id="conversion-section" class="fade-in" style="display:none;">
+      <section id="conversion-tab" class="fade-in" style="display:none;">
         <h2>Convert PDF</h2>
         <p>Upload your PDF and it'll be added to your library as an EPUB!</p>
 
@@ -97,18 +97,18 @@
             style="display:block;width:100%;padding:14px;font-size:16px;font-weight:600;font-family:inherit;border-radius:12px;background:var(--accent);color:#1a1a1a;text-align:center;text-decoration:none;margin-bottom:10px;box-sizing:border-box;">
             ↓ Download EPUB
           </a>
-          <button type="button" onclick="showSection('library-section')"
+          <button type="button" onclick="showSection('library-tab')"
             style="margin-bottom:10px;">
             Open Library
           </button>
-          <button type="button" onclick="clearConversion()"
+          <button type="button" onclick="resetConversion()"
             style="background:var(--card-bg);color:var(--text-secondary);box-shadow:0 0 0 0.5px var(--border-color);">
             Convert Another
           </button>
         </div>
       </section>
 
-<section id="help-section" class="fade-in" style="display: none;">
+<section id="help-tab" class="fade-in" style="display: none;">
   <h2>Help & Support</h2>
   <p>Answers to some common questions.</p>
 
@@ -161,12 +161,10 @@
     </main>
   </div>
 
-  <nav class="app-tab-bar">
-    <button onclick="showSection('welcome-section'); loadHomeDashboard();">Home</button>
-    <button onclick="showSection('library-section')">Library</button>
-    <button onclick="showSection('conversion-section')">PDF → EPUB</button>
-    <button onclick="showSection('help-section')">Help</button>
-  </nav>
+<button onclick="showTab('welcome-tab'); loadHomePage();">Home</button>
+    <button onclick="showTab('library-tab')">Library</button>
+    <button onclick="showTab('conversion-tab')">PDF → EPUB</button>
+    <button onclick="showTab('help-tab')">Help</button>
 
   <!-- the Service Worker -->
   <script>
