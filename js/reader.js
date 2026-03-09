@@ -27,6 +27,7 @@ function saveHighlights(hl) { localStorage.setItem("highlights_" + bookId, JSON.
     headerEl.classList.remove("hidden");
     footerEl.classList.remove("hidden");
     resetHideTimer();
+  
   }
   function hideUI() {
     uiVisible = false;
@@ -48,8 +49,9 @@ function saveHighlights(hl) { localStorage.setItem("highlights_" + bookId, JSON.
   trackRecentBook(bookId);
   document.getElementById("book-title").textContent = book.title;
 
-  //epub.js — paginated by default (Apple Books style) 
-  var epub = ePub(book.data);
+  var arrayBuffer = await book.data.arrayBuffer();
+  var epub = ePub(arrayBuffer);
+  console.log("epub created:", epub);
   var viewerEl = document.getElementById("viewer");
   var rendition = epub.renderTo("viewer", {
     width: viewerEl.offsetWidth,
@@ -59,9 +61,27 @@ function saveHighlights(hl) { localStorage.setItem("highlights_" + bookId, JSON.
     allowScriptedContent: true
 });
 
-  var savedCfi = localStorage.getItem("cfi_" + bookId);
-  if (savedCfi) rendition.display(savedCfi);
-  else rendition.display();
+//remember last reading position, theme, font size, and mode for next opening
+var savedMode = localStorage.getItem("readingMode_" + bookId);
+if (savedMode === "scroll") {
+  rendition.flow("scrolled-doc");
+  document.getElementById("mode-scroll").classList.add("active");
+  document.getElementById("mode-paginated").classList.remove("active");
+} else {
+  rendition.flow("paginated");
+  document.getElementById("mode-paginated").classList.add("active");
+  document.getElementById("mode-scroll").classList.remove("active");
+}
+
+var savedCfi = localStorage.getItem("cfi_" + bookId);
+if (savedCfi) rendition.display(savedCfi);
+else rendition.display();
+
+
+
+  rendition.on("rendered", function() {
+  console.log("Chapter rendered");
+});
 
   // 
   var locationsReady = false;
@@ -89,7 +109,6 @@ function updateProgress(cfi) {
   if (window.autoMarkDone) window.autoMarkDone(bookId, pct);
 }
 
- // Tap zones + swipe — unified touch handler (iOS PWA compatible) ──
   var touchStartX = 0;
   var touchStartY = 0;
   var touchStartTime = 0;
@@ -201,20 +220,23 @@ function updateProgress(cfi) {
   document.getElementById("mode-paginated").classList.add("active");
   document.getElementById("mode-scroll").classList.remove("active");
 
-  document.getElementById("mode-paginated").addEventListener("click", function() {
-    rendition.flow("paginated");
-    document.getElementById("mode-paginated").classList.add("active");
-    document.getElementById("mode-scroll").classList.remove("active");
-    settingsPanel.style.display = "none";
-    resetHideTimer();
-  });
-  document.getElementById("mode-scroll").addEventListener("click", function() {
-    rendition.flow("scrolled-doc");
-    document.getElementById("mode-scroll").classList.add("active");
-    document.getElementById("mode-paginated").classList.remove("active");
-    settingsPanel.style.display = "none";
-    resetHideTimer();
-  });
+document.getElementById("mode-paginated").addEventListener("click", function() {
+  rendition.flow("paginated");
+  localStorage.setItem("readingMode_" + bookId, "paginated");
+  document.getElementById("mode-paginated").classList.add("active");
+  document.getElementById("mode-scroll").classList.remove("active");
+  settingsPanel.style.display = "none";
+  resetHideTimer();
+});
+document.getElementById("mode-scroll").addEventListener("click", function() {
+  rendition.flow("scrolled-doc");
+  localStorage.setItem("readingMode_" + bookId, "scroll");
+  document.getElementById("mode-scroll").classList.add("active");
+  document.getElementById("mode-paginated").classList.remove("active");
+  settingsPanel.style.display = "none";
+  resetHideTimer();
+});
+
 
   //  Themes 
   var themeStyles = {
@@ -235,6 +257,7 @@ function updateProgress(cfi) {
     if (!btn) return;
     btn.addEventListener("click", function() {
       rendition.themes.select(name);
+      localStorage.setItem("readerTheme_" + bookId, name);
       var s = themeStyles[name];
       document.body.style.background = s.bg;
       document.getElementById("reader-header").style.background = s.headerBg;
@@ -243,6 +266,15 @@ function updateProgress(cfi) {
       });
     });
   });
+
+  var savedTheme = localStorage.getItem("readerTheme_" + bookId) || "light";
+rendition.themes.select(savedTheme);
+var savedStyle = themeStyles[savedTheme];
+document.body.style.background = savedStyle.bg;
+document.getElementById("reader-header").style.background = savedStyle.headerBg;
+document.querySelectorAll("[id^='theme-']").forEach(function(b) {
+  b.classList.toggle("active", b.id === "theme-" + savedTheme);
+});
 
   //  Font size 
   var fontSize = parseInt(localStorage.getItem("fontSize_" + bookId) || "100");
@@ -272,6 +304,7 @@ function updateProgress(cfi) {
     if (!btn) return;
     btn.addEventListener("click", function() {
       rendition.themes.override("font-family", fonts[name]);
+      localStorage.setItem("readerTheme_" + bookId, name);
       document.querySelectorAll("[id^='font-']").forEach(function(b) {
         b.classList.toggle("active", b.id === "font-" + name);
       });

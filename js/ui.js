@@ -132,7 +132,7 @@ function showBookMenu(book, li, anchor) {
         if (!confirm("Delete \"" + book.title + "\"?")) return;
         const { deleteBook } = await import("./library.js");
         await deleteBook(book.id);
-        ["cfi_","progress_","bookmarks_","highlights_","finished_","fontSize_"].forEach(function(p) {
+        ["cfi_","progress_","bookmarks_","highlights_","finished_","fontSize_","readingMode_","readerTheme_"].forEach(function(p) {
           localStorage.removeItem(p + book.id);
         });
         let recent = JSON.parse(localStorage.getItem("recentBooks") || "[]");
