@@ -89,44 +89,59 @@ epub.locations.generate(1024).then(function() {
     updateBookmarkIcon();
   });
 
-  // ── Tap zones: left third = prev, right third = next, middle = toggle UI ──
-  rendition.on("click", function(e) {
-    var iframeWidth = document.getElementById("viewer").offsetWidth;
-    var x = e.clientX;
-    var third = iframeWidth / 3;
-    if (x < third) {
-      rendition.prev();
-      showUI();
-    } else if (x > third * 2) {
-      rendition.next();
-      showUI();
-    } else {
-      if (uiVisible) hideUI();
-      else showUI();
-    }
-  });
-
-  // ── Swipe support 
+ // ── Tap zones + swipe — unified touch handler (iOS PWA compatible) ──
   var touchStartX = 0;
+  var touchStartY = 0;
+  var touchStartTime = 0;
+
   document.getElementById("viewer").addEventListener("touchstart", function(e) {
-    touchStartX = e.changedTouches[0].screenX;
+    touchStartX = e.changedTouches[0].clientX;
+    touchStartY = e.changedTouches[0].clientY;
+    touchStartTime = Date.now();
   }, { passive: true });
+
   document.getElementById("viewer").addEventListener("touchend", function(e) {
-    var dx = e.changedTouches[0].screenX - touchStartX;
-    if (Math.abs(dx) > 40) {
+    var dx = e.changedTouches[0].clientX - touchStartX;
+    var dy = e.changedTouches[0].clientY - touchStartY;
+    var dt = Date.now() - touchStartTime;
+    var absDx = Math.abs(dx);
+    var absDy = Math.abs(dy);
+
+    // swipe: horizontal movement > 40px, mostly horizontal, fast
+    if (absDx > 40 && absDx > absDy) {
       if (dx < 0) rendition.next();
       else rendition.prev();
       showUI();
+      return;
+    }
+
+    // tap: short duration, little movement
+    if (dt < 300 && absDx < 10 && absDy < 10) {
+      var viewerWidth = document.getElementById("viewer").offsetWidth;
+      var third = viewerWidth / 3;
+      var x = e.changedTouches[0].clientX;
+      if (x < third) {
+        rendition.prev();
+        showUI();
+      } else if (x > third * 2) {
+        rendition.next();
+        showUI();
+      } else {
+        if (uiVisible) hideUI();
+        else showUI();
+      }
     }
   }, { passive: true });
 
-  // ── Keyboard 
+  // Keyboard 
   document.addEventListener("keydown", function(e) {
     if (e.key === "ArrowRight") { rendition.next(); showUI(); }
     if (e.key === "ArrowLeft") { rendition.prev(); showUI(); }
   });
 
-  // ── Bookmark 
+  document.getElementById("prev-btn").addEventListener("click", function() { rendition.prev(); showUI(); });
+  document.getElementById("next-btn").addEventListener("click", function() { rendition.next(); showUI(); });
+  // Bookmark 
   function updateBookmarkIcon() {
     var loc = rendition.currentLocation();
     var cfi = loc && loc.start && loc.start.cfi;
