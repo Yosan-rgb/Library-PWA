@@ -64,8 +64,8 @@
   <h2>Library</h2>
   <p>Your collection</p>
   <ul id="libraryList" class="ios-group"></ul>
-  <input type="file" id="epubUpload" accept=".epub">
-  <button type="button" onclick="addToLibrary()">Add EPUB</button>
+  <input type="file" id="epubUpload" accept=".epub" style="display:none;">
+  <button type="button" onclick="document.getElementById('epubUpload').click()">Add EPUB</button>
 </section>
 
 <!-- PDF to EPUB conversion section -->
@@ -74,8 +74,9 @@
         <p>Upload your PDF and it'll be added to your library as an EPUB!</p>
 
         <div id="conversion-idle">
-          <input type="file" id="pdfFileInput" accept="application/pdf">
-          <button type="button" onclick="convertPDF()">Convert to EPUB</button>
+          <input type="file" id="pdfFileInput" accept="application/pdf" style="display:none;">
+          <button type="button" onclick="document.getElementById('pdfFileInput').click()">Convert ito EPUB</button>
+
         </div>
 
         <div id="conversion-progress" style="display:none;margin-top:24px;">

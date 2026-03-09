@@ -520,6 +520,12 @@ document.addEventListener("DOMContentLoaded", async function() {
       toggleBtn.textContent = isDark ? "Light Mode" : "Dark Mode";
     });
   }
+  document.getElementById("pdfFileInput").addEventListener("change", function() {
+  if (this.files[0]) convertPDF();
+});
+document.getElementById("epubUpload").addEventListener("change", function() {
+  if (this.files[0]) addToLibrary();
+  });
   window.loadHomePage = loadHomePage();
   setupUI();
 });
