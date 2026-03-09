@@ -2,7 +2,7 @@
   "name": "Offline EPUB Reader",
   "short_name": "EPUB Reader",
   "start_url": "index.html",
-  "scope": "/",
+  "scope": "./",
   "display": "standalone",
   "background_color": "#f2f2f7",
   "theme_color": "#66545e",
