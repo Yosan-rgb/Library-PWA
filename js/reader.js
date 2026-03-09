@@ -49,7 +49,7 @@ function saveHighlights(hl) { localStorage.setItem("highlights_" + bookId, JSON.
   trackRecentBook(bookId);
   document.getElementById("book-title").textContent = book.title;
 
-  // ── epub.js — paginated by default (Apple Books style) ────────────
+  // epub.js — paginated by default (Apple Books style) 
   var epub = ePub(book.data);
   var rendition = epub.renderTo("viewer", {
     width: "100%",
@@ -62,7 +62,7 @@ function saveHighlights(hl) { localStorage.setItem("highlights_" + bookId, JSON.
   if (savedCfi) rendition.display(savedCfi);
   else rendition.display();
 
-  // ── Progress ──────────────────────────────────────────────────────
+  // Progress 
   var locationsReady = false;
 
 function updateProgress(cfi) {
@@ -71,6 +71,7 @@ function updateProgress(cfi) {
   if (raw === null || raw === undefined) return;
   var pct = Math.round(Math.max(0, Math.min(1, raw)) * 100);
   document.getElementById("progress-pct").textContent = pct + "%";
+  document.getElementById("progress-fill").style.width = pct + "%";
   localStorage.setItem("progress_" + bookId, pct / 100);
   if (window.autoMarkDone) window.autoMarkDone(bookId, pct);
 }

@@ -50,7 +50,7 @@
 
   <p style="font-size:11px; font-weight:600; letter-spacing:0.8px; color:var(--text-secondary); margin-bottom:12px;">BROWSE</p>
   <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
-    <button onclick="showSection('library-tab')" style="background:var(--card-bg); color:var(--text-color); border-radius:14px; padding:18px 12px; font-size:14px; font-weight:600; box-shadow:0 0 0 0.5px var(--border-color);">
+    <button onclick="showTab('library-tab')" style="background:var(--card-bg); color:var(--text-color); border-radius:14px; padding:18px 12px; font-size:14px; font-weight:600; box-shadow:0 0 0 0.5px var(--border-color);">
       My Library ▤
     </button>
     <button onclick="showSection('conversion-tab')" style="background:var(--card-bg); color:var(--text-color); border-radius:14px; padding:18px 12px; font-size:14px; font-weight:600; box-shadow:0 0 0 0.5px var(--border-color);">
@@ -68,7 +68,7 @@
   <button type="button" onclick="addToLibrary()">Add EPUB</button>
 </section>
 
-<!-- PDF to EPUB -->
+<!-- PDF to EPUB conversion section -->
       <section id="conversion-tab" class="fade-in" style="display:none;">
         <h2>Convert PDF</h2>
         <p>Upload your PDF and it'll be added to your library as an EPUB!</p>
@@ -166,10 +166,10 @@
     <button onclick="showTab('conversion-tab')">PDF → EPUB</button>
     <button onclick="showTab('help-tab')">Help</button>
 
-  <!-- the Service Worker -->
+  <!-- the Service Worker integration/ -->
   <script>
     if ("serviceWorker" in navigator) {
-      navigator.serviceWorker.register("./ServiceWorker.js")
+      navigator.serviceWorker.register("ServiceWorker.js")
         .then(() => console.log("Service Worker registered"))
         .catch(err => console.error("SW registration failed", err));
     }

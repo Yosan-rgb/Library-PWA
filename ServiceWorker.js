@@ -150,7 +150,7 @@ self.addEventListener("fetch", function(event) {
   event.respondWith(
     caches.match(event.request).then(function(cachedresult) {
       if (cachedresult) {
-        return cacheresult;
+        return cachedesult;
       }
 
       return fetch(event.request.clone()).then(function(response) {

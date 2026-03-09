@@ -21,7 +21,7 @@ export async function refreshLibrary() {
     const li = document.createElement("li");
     li.style.cssText = "cursor:pointer;display:flex;flex-direction:column;position:relative;";
 
-    // ── Cover ──────────────────────────────────────────────────────
+    
     const cover = document.createElement("div");
     cover.style.cssText = "width:100%;aspect-ratio:2/3;border-radius:8px;overflow:hidden;box-shadow:2px 4px 12px rgba(0,0,0,0.18);margin-bottom:6px;flex-shrink:0;position:relative;background:linear-gradient(145deg,#3a3530,#2a2520);";
 
@@ -35,7 +35,7 @@ export async function refreshLibrary() {
       if (finished) cover.style.opacity = "0.4";
     }
 
-    // Subtle "Done" watermark on cover
+    //a 'Done' watermark over the cover
     if (finished) {
       const doneMark = document.createElement("div");
       doneMark.textContent = "Done";
@@ -43,7 +43,7 @@ export async function refreshLibrary() {
       cover.appendChild(doneMark);
     }
 
-    // ── ⋯ dots menu button (top right of cover) ────────────────────
+    //3 dots menu button at top right of cover, like on apple books app
     const dotsBtn = document.createElement("button");
     dotsBtn.textContent = "⋯";
     dotsBtn.style.cssText = "position:absolute;top:4px;right:4px;z-index:10;background:rgba(0,0,0,0.45);color:#fff;border:none;border-radius:6px;width:24px;height:20px;font-size:13px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;backdrop-filter:blur(4px);";
@@ -52,7 +52,7 @@ export async function refreshLibrary() {
       showBookMenu(book, li, dotsBtn);
     });
 
-    // ── Title ──────────────────────────────────────────────────────
+    //book title element 
     const titleEl = document.createElement("div");
     titleEl.textContent = book.title;
     titleEl.style.cssText = "font-size:11px;font-weight:500;text-align:center;line-height:1.3;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;color:var(--text-color);" + (finished ? "opacity:0.45;" : "");
@@ -70,7 +70,7 @@ export async function refreshLibrary() {
   }
 }
 
-// ── Floating dots menu ─────────────────────────────────────────────
+//floating dots menu 
 function showBookMenu(book, li, anchor) {
   // Remove any existing menu
   const existing = document.getElementById("book-menu-popup");
@@ -157,7 +157,7 @@ function showBookMenu(book, li, anchor) {
 
   document.body.appendChild(menu);
 
-  // Close on outside tap
+  //close app on outside tap
   setTimeout(function() {
     document.addEventListener("click", function closeMenu() {
       menu.remove();
@@ -166,7 +166,7 @@ function showBookMenu(book, li, anchor) {
   }, 0);
 }
 
-// Call this from reader.js when near the end
+//call this from reader.js when near the end of book (last 5% to account for extra pages)
 window.autoMarkDone = function(bookId, pct) {
   if (pct >= 95) {
     const already = localStorage.getItem("finished_" + bookId) === "true";

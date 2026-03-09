@@ -250,7 +250,7 @@ async function convertPDF() {
     // Show done state
     document.getElementById("conversion-progress").style.display = "none";
     document.getElementById("conversion-done").style.display = "block";
-    document.getElementById("conversion-book-title").textContent = bookTitle;
+    document.getElementById("conversion-book-title").textContent = title;
     document.getElementById("conversion-book-meta").textContent = chapters.length + " chapters · " + totalPages + " pages · added to your library";
 
   } catch (err) {
@@ -520,8 +520,6 @@ document.addEventListener("DOMContentLoaded", async function() {
       toggleBtn.textContent = isDark ? "Light Mode" : "Dark Mode";
     });
   }
-  showTab("welcome-tab");
-  updateTitle();
-  await loadHomePage();
+  window.loadHomePage = loadHomePage();
   setupUI();
 });
