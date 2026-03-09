@@ -139,6 +139,8 @@ self.addEventListener("activate", function(event) {
   );
 });
 
+
+
 // read/write operation 
 // sources: https://techielearn.com/tutorials/javascript-programming/web-performance-optimization/using-service-workers-for-caching
 // and https://stackoverflow.com/questions/46607030/service-worker-fetch
@@ -150,7 +152,7 @@ self.addEventListener("fetch", function(event) {
   event.respondWith(
     caches.match(event.request).then(function(cachedresult) {
       if (cachedresult) {
-        return cachedesult;
+        return cachedresult;
       }
 
       return fetch(event.request.clone()).then(function(response) {
