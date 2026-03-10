@@ -99,27 +99,19 @@
       width: auto; line-height: 1;
       flex-shrink: 0;
     }
-    .reader-progress-bar {
-      width: 100px; height: 2px;
-      background: rgba(0,0,0,0.12);
-      border-radius: 99px; overflow: hidden;
-      flex-shrink: 0;
-    }
-    .reader-progress-fill {
-      height: 100%; width: 0%;
-      background: var(--accent);
-      border-radius: 99px;
-      transition: width 0.4s ease;
-    }
-    .reader-pct {
-      font-size: 10px;
-      color: #8e8e93;
-      min-width: 26px;
-      text-align: right;
-      flex-shrink: 0;
-    }
+    
 
-    /* ── Settings drawer ── */
+
+    .reader-page-info {
+  font-size: 12px;
+  color: #8e8e93;
+  white-space: nowrap;
+  flex-shrink: 0;
+  min-width: 60px;
+  text-align: center;
+}
+
+    
     #settings-panel { display: none; }
     #settings-overlay {
       position: fixed; inset: 0;
@@ -251,16 +243,15 @@
     <div id="search-results"></div>
   </div>
 
-  <div id="viewer"></div>
+<div id="viewer" style="position:fixed;top:0;bottom:0;left:0;right:0;"></div>
+
 
   <div class="reader-footer" id="reader-footer">
-    <button class="prev-btn" id="prev-btn">‹</button>
-    <div class="reader-progress-bar">
-      <div class="reader-progress-fill" id="progress-fill"></div>
-    </div>
-    <span class="reader-pct" id="progress-pct">0%</span>
-    <button class="next-btn" id="next-btn">›</button>
-  </div>
+  <button class="prev-btn" id="prev-btn">‹</button>
+  <!-- page x out of total. Mo apple book like and easier than a progress bar while reading -->
+  <span class="reader-page-info" id="page-info">p. —</span>
+  <button class="next-btn" id="next-btn">›</button>
+</div>
 
   <!-- Settings panel -->
   <div id="settings-panel">
@@ -268,7 +259,7 @@
     <div id="settings-drawer">
       <p class="settings-label">Reading Mode</p>
       <div class="settings-row">
-        <button id="mode-paginated" class="toggle-btn">Page Turn</button>
+        <button id="mode-pagebypage" class="toggle-btn">Page Turn</button>
         <button id="mode-scroll" class="toggle-btn active">Scroll</button>
       </div>
       <p class="settings-label">Theme</p>

@@ -90,25 +90,34 @@ else rendition.display();
   var locationsReady = false; 
   //true once epublocations isready. 
 
+// TO
 function updateProgress(cfi) {
   if (!cfi) return;
-  // show approximate progress even before locations are ready
+
+  //uses spine position as a fallback until locations are ready, so we at least have some progress info for the home screen bar and page display
+  var spineItems = epub.spine.spineItems;
+  var spinePos = spineItems.findIndex(function(item) {
+    return cfi.indexOf(item.idref) !== -1;});
+  var pageEl = document.getElementById("page-info");
+
   if (!locationsReady) {
-    var spinePos = epub.spine.spineItems.findIndex(function(item) {
-      return cfi.indexOf(item.idref) !== -1;
-    });
     if (spinePos !== -1) {
-      var approx = Math.round((spinePos / epub.spine.spineItems.length) * 100);
-      document.getElementById("progress-pct").textContent = approx + "%";
-      document.getElementById("progress-fill").style.width = approx + "%";
+      // show chapter position as a fraction while locations load so that percentage can be somewhat accurate
+     pageEl.textContent = (spinePos + 1) + " / " + spineItems.length;
+      // still save an approximate progress for the home screen bar
+      localStorage.setItem("progress_" + bookId, (spinePos + 1) / spineItems.length);
     }
     return;
   }
+
   var raw = epub.locations.percentageFromCfi(cfi);
   if (raw === null || raw === undefined) return;
   var pct = Math.round(Math.max(0, Math.min(1, raw)) * 100);
-  document.getElementById("progress-pct").textContent = pct + "%";
-  document.getElementById("progress-fill").style.width = pct + "%";
+
+   var totalLocs = epub.locations.length();
+  var currentLoc = Math.round(raw * totalLocs);
+  pageEl.textContent = currentLoc + " / " + totalLocs;
+
   localStorage.setItem("progress_" + bookId, pct / 100);
   if (window.autoMarkDone) window.autoMarkDone(bookId, pct);
 }
