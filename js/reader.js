@@ -81,6 +81,15 @@ if (savedCfi) rendition.display(savedCfi);
 else rendition.display();
 
 
+rendition.on("relocated", function(location) {
+  var cfi = location.start.cfi;
+
+  //saves position for next  book opening
+  localStorage.setItem("cfi_" + bookId, cfi);
+
+  updateProgress(cfi);
+  updateBookmarkIcon();
+});
 
   rendition.on("rendered", function() {
   console.log("Chapter rendered");
@@ -90,36 +99,38 @@ else rendition.display();
   var locationsReady = false; 
   //true once epublocations isready. 
 
-// TO
+
+
+//page numbers beacasue progress bar isn't functioning 
 function updateProgress(cfi) {
   if (!cfi) return;
-
-  //uses spine position as a fallback until locations are ready, so we at least have some progress info for the home screen bar and page display
-  var spineItems = epub.spine.spineItems;
-  var spinePos = spineItems.findIndex(function(item) {
-    return cfi.indexOf(item.idref) !== -1;});
   var pageEl = document.getElementById("page-info");
+  if (!pageEl) return;
 
-  if (!locationsReady) {
-    if (spinePos !== -1) {
-      // show chapter position as a fraction while locations load so that percentage can be somewhat accurate
-     pageEl.textContent = (spinePos + 1) + " / " + spineItems.length;
-      // still save an approximate progress for the home screen bar
-      localStorage.setItem("progress_" + bookId, (spinePos + 1) / spineItems.length);
-    }
+  //first it'll try to get actual page number from epub 
+  var loc = rendition.currentLocation();
+  var pageNum = loc && loc.start && loc.start.displayed && loc.start.displayed.page;
+  var totalPages = loc && loc.start && loc.start.displayed && loc.start.displayed.total;
+
+  if (pageNum && totalPages && pageNum > 0) {
+    
+    pageEl.textContent = "p. " + pageNum + " of " + totalPages;
+    localStorage.setItem("progress_" + bookId, pageNum / totalPages);
+    if (window.autoMarkDone) window.autoMarkDone(bookId, Math.round((pageNum / totalPages) * 100));
     return;
   }
 
-  var raw = epub.locations.percentageFromCfi(cfi);
-  if (raw === null || raw === undefined) return;
-  var pct = Math.round(Math.max(0, Math.min(1, raw)) * 100);
+  //fall back
+  var spineItems = epub.spine.spineItems;
+  var spinePos = spineItems.findIndex(function(item) {
+    return cfi.indexOf(item.idref) !== -1;
+  });
 
-   var totalLocs = epub.locations.length();
-  var currentLoc = Math.round(raw * totalLocs);
-  pageEl.textContent = currentLoc + " / " + totalLocs;
-
-  localStorage.setItem("progress_" + bookId, pct / 100);
-  if (window.autoMarkDone) window.autoMarkDone(bookId, pct);
+  if (spinePos !== -1) {
+    pageEl.textContent = (spinePos + 1) + " / " + spineItems.length;
+    localStorage.setItem("progress_" + bookId, (spinePos + 1) / spineItems.length);
+    if (window.autoMarkDone) window.autoMarkDone(bookId, Math.round(((spinePos + 1) / spineItems.length) * 100));
+  }
 }
 
   var touchStartX = 0;
