@@ -24,13 +24,17 @@ function showTab(id) {
   });
 }
 window.showTab = showTab;
+window.showSection = showTab;
+
 
 //enter name prompt only called during first launch. backup loadHomepage()
 function submitName() {
-  var input = document.getElementById("usernameInput");
-  var name = input ? input.value.trim() : "";
+  var input = document.getElementById("usernameInput");   
+ var name = input ? input.value.trim() : "";
+  var name = rawInput.trim();
+
   if (!name) return;
-  localStorage.setItem("userName", name);
+  localStorage.setItem('userName', name);
   updateTitle();
   loadHomeDashboard();
 }
@@ -118,12 +122,7 @@ async function loadHomePage() {
 }}
 window.loadHomeDashboard = loadHomePage;
 
-function trackRecentBook(bookId) {
-  var recent = JSON.parse(localStorage.getItem("recentBooks") || "[]");
-  recent = [bookId].concat(recent.filter(function(id) { return id !== bookId; })).slice(0, 3);
-  localStorage.setItem("recentBooks", JSON.stringify(recent));
-}
-window.trackRecentBook = trackRecentBook;
+
 
 // FLGD
 window.addToLibrary = async function() {
@@ -270,10 +269,6 @@ function setStatus(msg, detail, pct) {
 }
 window.convertPDF = convertPDF;
 
-/*source chatgpt*/
-function checkIFPageNum(line) {
-  return /^\d+$/.test(line.trim()) || /^-\s*\d+\s*-$/.test(line.trim());
-}
 
 function findChapters(pages, totalPages) {
   
@@ -471,14 +466,6 @@ async function makeEpub(title, chapters) {
   });
 }
 
-function resetConversion() {
-  document.getElementById("conversion-done").style.display = "none";
-  document.getElementById("conversion-idle").style.display = "block";
-  var inp = document.getElementById("pdfFileInput");
-  if (inp) inp.value = "";
-}
-window.resetConversion = resetConversion;
-function showLoading() {
   var overlay = document.getElementById("loading-overlay");
   if (!overlay) {
     overlay = document.createElement("div");
@@ -487,7 +474,18 @@ function showLoading() {
     overlay.style.cssText = "position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;z-index:2000;";
     document.body.appendChild(overlay);
   }
-  overlay.style.display = "flex";}
+  
+  function showLoading() {
+  var overlay = document.getElementById("loading-overlay");
+  if (!overlay) {
+    overlay = document.createElement("div");
+    overlay.id = "loading-overlay";
+    overlay.innerHTML = '<div class="spinner"></div>';
+    overlay.style.cssText = "position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;z-index:2000;";
+    document.body.appendChild(overlay);
+  }
+  overlay.style.display = "flex";
+}
 
 function hideLoading() {
   var overlay = document.getElementById("loading-overlay");

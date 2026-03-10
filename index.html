@@ -24,10 +24,11 @@
   <button id="dark-mode-toggle">Dark Mode</button>
 </header>
 
-   <div class="app-content"> 
-    <div id="user-status" class="user-status"></div>
 
+  
+  <div class="app-content"> 
 
+  
 
    <main>
       <section id="welcome-tab" class="fade-in">
@@ -40,12 +41,14 @@
     </form>
   </div>
 
+
   <div id="home-dashboard" style="display:none;">
   <h2 id="greeting" style="font-size:26px; font-weight:700; letter-spacing:-0.5px; margin-bottom:4px;"></h2>
   <p style="color:var(--text-secondary); font-size:15px; margin-bottom:32px;">Ready to keep reading?</p>
 
   <p style="font-size:11px; font-weight:600; letter-spacing:0.8px; color:var(--text-secondary); margin-bottom:12px;">CONTINUE READING</p>
   <div id="recent-books" style="margin-bottom:36px;">
+
     <p id="no-recent" style="color:var(--text-secondary); font-size:15px; background:var(--card-bg); padding:16px; border-radius:12px;">No books opened yet.</p> </div>
 
   <p style="font-size:11px; font-weight:600; letter-spacing:0.8px; color:var(--text-secondary); margin-bottom:12px;">BROWSE</p>
@@ -55,8 +58,7 @@
 <button onclick="showSection('conversion-tab')" style="background:var(--card-bg);color:var(--text-color); border-radius:14px; padding:18px 12px;font-size:14px;font-weight:600;box-shadow:0 0 0 0.5px var(--border-color);">
   pdf → epub ⇄
 </button>
-  </div>
-</div>
+ </div></div>
 </section>
 
 <section id="library-tab" class="fade-in" style="display:none;">
@@ -64,10 +66,10 @@
   <p>Your collection</p>
   <ul id="libraryList" class="ios-group"></ul>
   <input type="file" id="epubUpload" accept=".epub" style="display:none;">
+
 <button type="button" onclick="document.getElementById('epubUpload').click()">add a book</button>
 </section>
 
-<!-- PDF to EPUB conversion section -->
       <section id="conversion-tab" class="fade-in" style="display:none;">
         <h2>Convert PDF</h2>
         <p>Upload your PDF and it'll be added to your library as an EPUB!</p>
@@ -79,12 +81,13 @@
         </div>
 
         <div id="conversion-progress" style="display:none;margin-top:24px;">
-          <div style="background:var(--card-bg);border-radius:14px;padding:20px;box-shadow:0 0 0 0.5px var(--border-color);">
-            <div style="font-size:15px;font-weight:600;margin-bottom:4px;" id="conversion-status">Reading PDF…</div>
-            <div style="font-size:13px;color:var(--text-secondary);margin-bottom:16px;" id="conversion-detail"></div>
-            <div style="height:4px;background:var(--border-color);border-radius:99px;overflow:hidden;">
-              <div id="conversion-bar" style="height:100%;width:0%;background:var(--accent);border-radius:99px;transition:width 0.3s ease;"></div>
-            </div>
+        <div style="background:var(--card-bg);border-radius:14px;padding:20px;box-shadow:0 0 0 0.5px var(--border-color);">
+           <div style="font-size:15px;font-weight:600;margin-bottom:4px;" id="conversion-status">Reading PDF…</div>
+           <div style="font-size:13px;color:var(--text-secondary);margin-bottom:16px;" id="conversion-detail"></div>
+           <div style="height:4px;background:var(--border-color);border-radius:99px;overflow:hidden;">
+            <div id="conversion-bar" style="height:100%;width:0%;background:var(--accent);border-radius:99px;transition:width 0.3s ease;"></div>
+           
+          </div>
           </div>
         </div>
 
@@ -95,7 +98,7 @@
           </div>
           <a id="download-link" href="#" download="converted.epub"
             style="display:block;width:100%;padding:14px;font-size:16px;font-weight:600;font-family:inherit;border-radius:12px;background:var(--accent);color:#1a1a1a;text-align:center;text-decoration:none;margin-bottom:10px;box-sizing:border-box;">
-            ↓ Download EPUB
+            ↓ Download YOUR EPUB
           </a>
           <button type="button" onclick="showSection('library-tab')"
             style="margin-bottom:10px;">
@@ -112,25 +115,28 @@
   <h2>Help & Support</h2>
   <p>Answers to some common questions.</p>
 
-  <p class="help-label">HOW TO INSTALL (ON iPHONE)</p>
+  <p class="help-label">HOW TO INSTALL (ON iPHONE)</p> 
   <div class="help-card">
-    <h3>Add to Home Screen</h3>
+    <h3>Add to Home Screen</h3>  
     <p>You can add this app to your home screen so it works like a normal app.</p>
-    <ul class="step-list">
+    <ul class="step-list">  
       <li><div class="step-number">1</div><p>Open this app's link in <i>Safari</i> (or any other browsers).</p></li>
       <li><div class="step-number">2</div><p>Tap the <strong>Share button</strong> at the bottom center of the screen.</p></li>
+      
       <li><div class="step-number">3</div><p>Scroll down and tap <strong>Add to Home Screen</strong>.</p></li>
       <li><div class="step-number">4</div><p>Tap <strong>Add</strong> in the top right corner.</p></li>
       <li><div class="step-number">5</div><p>The app icon appears on your home screen. It will now work fully offline as well!</p></li>
     </ul>
   </div>
-
+   
   <p class="help-label">PDF TO EPUB CONVERTER</p>
   <div class="help-card">
-    <h3>Converting a PDF to EPUB</h3>
+    <h3>Converting a PDF to EPUB</h3>  
     <p>This works best with text-based PDFs.</p>
     <p>Go to the <strong>PDF → EPUB</strong> tab, pick your file, and tap Convert. The newly converted EPUB should show up in your library when it's done.</p>
   </div>
+ 
+</section>
 
   <p class="help-label">FREQUENTLY ASKED QUESTIONS</p>
   <div class="faq-container">
@@ -142,29 +148,27 @@
       <summary>Where are my books saved outside of the app?<span>›</span></summary>
       <p>Books are stored locally on your device. To save a copy outside the app, use the Download EPUB button after converting a PDF and find the book in your iPhone's Files app.</p>
     </details>
-    <details class="faq-item">
+    <details class="faq-item">  
       <summary>How can I share books with my friends?<span>›</span></summary>
       <p>After converting a PDF, tap Download EPUB to save the file. You can then share it via AirDrop, iMessage, email... ect from your Files app. Friends can acess the book with the same app or any other!.</p>
     </details>
   </div>
+    </main>   </div>
 
-  <p class="help-label">CONTACT ME</p>
+  <p class="help-label">CONTACT ME</p>  
   <div class="help-card">
-    <h3>Need more tailored help?</h3>
+    <h3>Need more tailored help?</h3> 
     <p>Contact the developer if you have any other questions: <a href="mailto:yosan.gebreegziabher@gmail.com" style="color:var(--accent);text-decoration:none;font-weight:500;">yosan.gebreegziabher@gmail.com</a></p>
   </div>
-</section>
 
-
-    </main>
-  </div>
 
 <nav class="app-tab-bar">
   <button onclick="showTab('welcome-tab'); loadHomePage();">home</button>
-  <button onclick="showTab('library-tab')">library</button>
-  <button onclick="showTab('conversion-tab')">PDF → EPUB</button>
+   <button onclick="showTab('library-tab')">library</button>
+    <button onclick="showTab('conversion-tab')">PDF → EPUB</button>
   <button onclick="showTab('help-tab')">help</button>
 </nav>
+
 
   <!-- the Service Worker integration/ -->
   <script>
@@ -176,10 +180,20 @@
   .catch(err => console.error("SW registration failed", err));
     }
   </script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-  <script src="https://unpkg.com/epubjs/dist/epub.min.js"></script>
+  <!-- removed text from Criterion C (for word count but this might still help)
+   EPUBs are ZIP files and JSZIP unpacks them in the browser. This allows my PWA to read
+   the internal XML files for the metadata for the restructuring of the epubs and the cover
+   extraction without needing a server. epub.js rendners the EPUBs within the reader, it will
+   let the reader scroll or read pagebypage alsong with saving the readin position. PDF.js extracts
+   PDFs in the browser and will be used in the extraction. These three are loaded from CND’s
+   because the PWA will use a Service worker to cache them and they can be made available offline.
+ -->  
+
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"> </script>
+  <script src="https://unpkg.com/epubjs/dist/epub.min.js"></script> 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-  <script type="module" src="./js/app.js"></script>
+  <script type="module" src="./js/app.js"></script> 
 
 </body>
 </html>

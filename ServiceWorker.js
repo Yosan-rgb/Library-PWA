@@ -28,14 +28,13 @@ self.addEventListener("install", function(event) {
       // appFiles is basically a collection that is iterated over with map() - cretiron c
       // allSettled () - if one fails it doen't crash everything
       // source:  https://developer.mozilla.org/en-US/docs/Web/API/Service_Worker_API/Using_Service_Workers
-      return Promise.allSettled(
-        appFiles.map(function(url) {
-          i++;
-          return cache.add(url).catch(function(err) {
-            console.warn("couldnt cache file " + i + ": " + url, err);
-          });
-        })
-      );
+    return Promise.allSettled(
+  appFiles.map(function(url) {
+    return caches.add(url).catch(function(err) {
+      console.warn("Could not cache:", url, err);
+    });
+  })
+);
       
     }).then(function() {
       return self.skipWaiting();

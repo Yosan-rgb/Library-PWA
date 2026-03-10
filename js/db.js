@@ -1,24 +1,23 @@
 console.log("db.js loaded"); //confirsm the moule loded during test
-const DB_NAME = "epubLibraryDB";
-const DB_VERSION = 1; //extensibility for future. scheme changes possible.
-const STORE_NAME = "books";
+const DB_NAME = 'epubLibraryDB';
+const DB_VERSION = 1; //extensibility for future. schema changes possible.
+const STORE_NAME = 'books';
 
 let db = null;
+//let dbReady= False;
 
 export function openDatabase() {
   return new Promise((resolve, reject) => {
     const request = indexedDB.open(DB_NAME, DB_VERSION);
 
-    request.onerror = () => {
-    reject("Failed to open IndexedDB");
-    };
+    request.onerror = () => reject("Failed to open IndexedDB");
 
     request.onsuccess = () => {
       db = request.result;
       resolve(db);
     };
 
-  //runs then db first created. crates books store when not there.
+  //runs then db first created + crates books store when not there.
     request.onupgradeneeded = (event) => {
       const database = event.target.result;
 
@@ -31,9 +30,7 @@ export function openDatabase() {
 }
 
 export function getDB() {
-  if (!db) {
-    throw new Error("your database not initialized. Call openDatabase() first."); //gitbatch style as hint
-  }
+  if (!db) throw new Error("your database not initialized. Call openDatabase() first.");   
   return db;
 }
 
