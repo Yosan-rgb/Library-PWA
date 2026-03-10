@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   
-  <title>Library PWA</title>
+  <title>my library</title>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="manifest" href="manifest.json">
@@ -19,7 +19,8 @@
 </head>
 <body>
   <header class="app-header">
-  <h1 id="app-title">Your Library App</h1>
+  <h1 id="app-title">Welcome to Your Library App</h1>
+  <!-- button for dark mode toggle, should work across browsers, test on ipad and iphone safari and chrome-->
   <button id="dark-mode-toggle">Dark Mode</button>
 </header>
 
@@ -31,7 +32,7 @@
    <main>
       <section id="welcome-tab" class="fade-in">
   <div id="name-entry">
-    <h2>Welcome!</h2>
+    <h2>Welcome!</h2> 
     <p>What's your name?</p>
     <form onsubmit="submitName(); return false;">
       <input type="text" id="usernameInput" placeholder="Your name">
@@ -45,17 +46,15 @@
 
   <p style="font-size:11px; font-weight:600; letter-spacing:0.8px; color:var(--text-secondary); margin-bottom:12px;">CONTINUE READING</p>
   <div id="recent-books" style="margin-bottom:36px;">
-    <p id="no-recent" style="color:var(--text-secondary); font-size:15px; background:var(--card-bg); padding:16px; border-radius:12px;">No books opened yet.</p>
-  </div>
+    <p id="no-recent" style="color:var(--text-secondary); font-size:15px; background:var(--card-bg); padding:16px; border-radius:12px;">No books opened yet.</p> </div>
 
   <p style="font-size:11px; font-weight:600; letter-spacing:0.8px; color:var(--text-secondary); margin-bottom:12px;">BROWSE</p>
   <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
-    <button onclick="showTab('library-tab')" style="background:var(--card-bg); color:var(--text-color); border-radius:14px; padding:18px 12px; font-size:14px; font-weight:600; box-shadow:0 0 0 0.5px var(--border-color);">
-      My Library ▤
-    </button>
-    <button onclick="showSection('conversion-tab')" style="background:var(--card-bg); color:var(--text-color); border-radius:14px; padding:18px 12px; font-size:14px; font-weight:600; box-shadow:0 0 0 0.5px var(--border-color);">
-      ⇄ Convert PDF
-    </button>
+    <button onclick="showTab('library-tab')" style="background:var(--card-bg);color:var(--text-color);border-radius:14px;padding:18px 12px;font-size:14px;font-weight:600; box-shadow:0 0 0 0.5px var(--border-color);">
+  books ▤</button>
+<button onclick="showSection('conversion-tab')" style="background:var(--card-bg);color:var(--text-color); border-radius:14px; padding:18px 12px;font-size:14px;font-weight:600;box-shadow:0 0 0 0.5px var(--border-color);">
+  pdf → epub ⇄
+</button>
   </div>
 </div>
 </section>
@@ -65,7 +64,7 @@
   <p>Your collection</p>
   <ul id="libraryList" class="ios-group"></ul>
   <input type="file" id="epubUpload" accept=".epub" style="display:none;">
-  <button type="button" onclick="document.getElementById('epubUpload').click()">Add EPUB</button>
+<button type="button" onclick="document.getElementById('epubUpload').click()">add a book</button>
 </section>
 
 <!-- PDF to EPUB conversion section -->
@@ -113,7 +112,7 @@
   <h2>Help & Support</h2>
   <p>Answers to some common questions.</p>
 
-  <p class="help-label">INSTALL ON iPHONE</p>
+  <p class="help-label">HOW TO INSTALL (ON iPHONE)</p>
   <div class="help-card">
     <h3>Add to Home Screen</h3>
     <p>You can add this app to your home screen so it works like a normal app.</p>
@@ -149,7 +148,7 @@
     </details>
   </div>
 
-  <p class="help-label">CONTACT & SUPPORT</p>
+  <p class="help-label">CONTACT ME</p>
   <div class="help-card">
     <h3>Need more tailored help?</h3>
     <p>Contact the developer if you have any other questions: <a href="mailto:yosan.gebreegziabher@gmail.com" style="color:var(--accent);text-decoration:none;font-weight:500;">yosan.gebreegziabher@gmail.com</a></p>
@@ -161,14 +160,16 @@
   </div>
 
 <nav class="app-tab-bar">
-  <button onclick="showTab('welcome-tab'); loadHomePage();">Home</button>
-  <button onclick="showTab('library-tab')">Library</button>
+  <button onclick="showTab('welcome-tab'); loadHomePage();">home</button>
+  <button onclick="showTab('library-tab')">library</button>
   <button onclick="showTab('conversion-tab')">PDF → EPUB</button>
-  <button onclick="showTab('help-tab')">Help</button>
+  <button onclick="showTab('help-tab')">help</button>
 </nav>
 
   <!-- the Service Worker integration/ -->
   <script>
+
+    // will only try register if supported, won't cause any issues if fails. safari might not support. doubtle chcek
     if ("serviceWorker" in navigator) {
       navigator.serviceWorker.register("./ServiceWorker.js")
   .then(() => console.log("Service Worker registered"))

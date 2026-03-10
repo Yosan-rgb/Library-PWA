@@ -1,6 +1,9 @@
 import { openDatabase } from "./db.js";
 import { getBookById } from "./library.js";
 
+
+
+//get book id pre set on intial open or send back to library if not there
 const bookId = localStorage.getItem("lastOpenedBookId");
 if (!bookId) window.location.href = "index.html";
 
@@ -56,7 +59,7 @@ function saveHighlights(hl) { localStorage.setItem("highlights_" + bookId, JSON.
   var rendition = epub.renderTo("viewer", {
     width: viewerEl.offsetWidth,
     height: viewerEl.offsetHeight,
-    flow: "paginated",
+    flow: "pagebypage",
     spread: "none",
     allowScriptedContent: true
 });
@@ -66,10 +69,10 @@ var savedMode = localStorage.getItem("readingMode_" + bookId);
 if (savedMode === "scroll") {
   rendition.flow("scrolled-doc");
   document.getElementById("mode-scroll").classList.add("active");
-  document.getElementById("mode-paginated").classList.remove("active");
+  document.getElementById("mode-pagebypage").classList.remove("active");
 } else {
-  rendition.flow("paginated");
-  document.getElementById("mode-paginated").classList.add("active");
+  rendition.flow("pagebypage");
+  document.getElementById("mode-pagebypage").classList.add("active");
   document.getElementById("mode-scroll").classList.remove("active");
 }
 
@@ -84,7 +87,8 @@ else rendition.display();
 });
 
   // 
-  var locationsReady = false;
+  var locationsReady = false; 
+  //true once epublocations isready. 
 
 function updateProgress(cfi) {
   if (!cfi) return;
@@ -217,13 +221,13 @@ function updateProgress(cfi) {
   });
 
   // Reading mode
-  document.getElementById("mode-paginated").classList.add("active");
+  document.getElementById("mode-pagebypage").classList.add("active");
   document.getElementById("mode-scroll").classList.remove("active");
 
-document.getElementById("mode-paginated").addEventListener("click", function() {
-  rendition.flow("paginated");
-  localStorage.setItem("readingMode_" + bookId, "paginated");
-  document.getElementById("mode-paginated").classList.add("active");
+document.getElementById("mode-pagebypage").addEventListener("click", function() {
+  rendition.flow("pagebypage");
+  localStorage.setItem("readingMode_" + bookId, "pagebypage");
+  document.getElementById("mode-pagebypage").classList.add("active");
   document.getElementById("mode-scroll").classList.remove("active");
   settingsPanel.style.display = "none";
   resetHideTimer();
@@ -232,7 +236,7 @@ document.getElementById("mode-scroll").addEventListener("click", function() {
   rendition.flow("scrolled-doc");
   localStorage.setItem("readingMode_" + bookId, "scroll");
   document.getElementById("mode-scroll").classList.add("active");
-  document.getElementById("mode-paginated").classList.remove("active");
+  document.getElementById("mode-pagebypage").classList.remove("active");
   settingsPanel.style.display = "none";
   resetHideTimer();
 });
