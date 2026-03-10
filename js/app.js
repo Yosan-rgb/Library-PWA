@@ -523,4 +523,6 @@ document.getElementById("epubUpload").addEventListener("change", function() {
   if (this.files[0]) addToLibrary();
   });
 window.loadHomePage = loadHomePage;
-loadHomePage(); } ) ;
+await loadHomePage();
+await setupUI();
+});

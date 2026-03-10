@@ -25,7 +25,8 @@ function saveHighlights(hl) { localStorage.setItem("highlights_" + bookId, JSON.
   var uiVisible = true;
   var hideTimer = null;
 
-  function showUI() {
+
+function showUI() {
     uiVisible = true;
     headerEl.classList.remove("hidden");
     footerEl.classList.remove("hidden");
@@ -56,7 +57,6 @@ function saveHighlights(hl) { localStorage.setItem("highlights_" + bookId, JSON.
   var epub = ePub(arrayBuffer);
   console.log("epub created:", epub);
   var viewerEl = document.getElementById("viewer");
-);
 
 var rendition = epub.renderTo("viewer", {
   width: viewerEl.offsetWidth,
@@ -64,7 +64,7 @@ height: viewerEl.offsetHeight,
   flow: "pagebypage",
   spread: "none",
   allowScriptedContent: true,
-  allowPopups: true  // add this line
+  allowPopups: true 
 });
 
 //remember last reading position, theme, font size, and mode for next opening
@@ -83,12 +83,12 @@ var savedCfi = localStorage.getItem("cfi_" + bookId);
 if (savedCfi) rendition.display(savedCfi);
 else rendition.display();
 
-
-if (!localStorage.getItem("highlightHintSeen")) {
-  setTimeout(function() {
-    toast("tip: select any text to highlight it");
+setTimeout(function() {
+showToast("tip: select any text to highlight it");
     localStorage.setItem("highlightHintSeen", "true");
   }, 2000);
+if (!localStorage.getItem("highlightHintSeen")) {
+  
 }
 
 rendition.on("relocated", function(location) {

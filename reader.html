@@ -43,6 +43,7 @@
       font-weight: 500; cursor: pointer;
       padding: 0; width: auto;
     }
+   
     .reader-header__title {
       font-size: 14px; font-weight: 600;
       color: #1a1a1a;
@@ -59,15 +60,13 @@
       color: var(--accent); font-size: 22px;
       cursor: pointer; padding: 0; width: auto;
       line-height: 1;
-    }
+   }
 
-    /* ── Viewer fills whole screen ── */
     #viewer {
       position: fixed;
       top: 0; bottom: 0; left: 0; right: 0;
     }
 
-    /* ── Floating footer pill ── */
     .reader-footer {
       position: fixed;
       bottom: 24px;
@@ -157,7 +156,7 @@
       font-size: 15px; color: #1a1a1a;
     }
 
-    /* ── Search bar ── */
+
     #search-bar {
       display: none;
       position: fixed; top: 44px; left: 0; right: 0;
@@ -183,7 +182,6 @@
       line-height: 1.4;
     }
 
-    /* ── Bookmarks panel ── */
     #bookmarks-panel { display: none; }
     #bookmarks-overlay {
       position: fixed; inset: 0;
@@ -204,7 +202,6 @@
       background: var(--bg-color, #f2f2f7);
     }
 
-    /* ── Highlights panel ── */
     #highlights-panel { display: none; }
     #highlights-overlay {
       position: fixed; inset: 0;
@@ -248,12 +245,11 @@
 
   <div class="reader-footer" id="reader-footer">
   <button class="prev-btn" id="prev-btn">‹</button>
-  <!-- page x out of total. Mo apple book like and easier than a progress bar while reading -->
+
   <span class="reader-page-info" id="page-info">p. —</span>
   <button class="next-btn" id="next-btn">›</button>
 </div>
 
-  <!-- Settings panel -->
   <div id="settings-panel">
     <div id="settings-overlay"></div>
     <div id="settings-drawer">
@@ -291,7 +287,6 @@
     </div>
   </div>
 
-  <!-- Bookmarks panel -->
   <div id="bookmarks-panel">
     <div id="bookmarks-overlay"></div>
     <div id="bookmarks-drawer">
@@ -300,7 +295,6 @@
     </div>
   </div>
 
-  <!-- Highlights panel -->
   <div id="highlights-panel">
     <div id="highlights-overlay"></div>
     <div id="highlights-drawer">
