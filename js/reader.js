@@ -64,6 +64,15 @@ function saveHighlights(hl) { localStorage.setItem("highlights_" + bookId, JSON.
     allowScriptedContent: true
 });
 
+var rendition = epub.renderTo("viewer", {
+  width: viewerEl.offsetWidth,
+height: viewerEl.offsetHeight,
+  flow: "pagebypage",
+  spread: "none",
+  allowScriptedContent: true,
+  allowPopups: true  // add this line
+});
+
 //remember last reading position, theme, font size, and mode for next opening
 var savedMode = localStorage.getItem("readingMode_" + bookId);
 if (savedMode === "scroll") {
@@ -80,6 +89,13 @@ var savedCfi = localStorage.getItem("cfi_" + bookId);
 if (savedCfi) rendition.display(savedCfi);
 else rendition.display();
 
+
+if (!localStorage.getItem("highlightHintSeen")) {
+  setTimeout(function() {
+    toast("tip: select any text to highlight it");
+    localStorage.setItem("highlightHintSeen", "true");
+  }, 2000);
+}
 
 rendition.on("relocated", function(location) {
   var cfi = location.start.cfi;
@@ -142,6 +158,9 @@ function updateProgress(cfi) {
   if (!iframeDoc) return;
 
   var startX = 0, startY = 0, startTime = 0;
+
+  //touch gesture handling for both swipe and tap.
+  //sources: https://developer.mozilla.org/en-US/docs/Web/API/Touch_events
 
   iframeDoc.addEventListener("touchstart", function(e) {
     startX = e.changedTouches[0].clientX;

@@ -25,7 +25,7 @@ function showTab(id) {
 }
 window.showTab = showTab;
 
-//enter name prompt only called during first launch
+//enter name prompt only called during first launch. backup loadHomepage()
 function submitName() {
   var input = document.getElementById("usernameInput");
   var name = input ? input.value.trim() : "";
@@ -36,14 +36,14 @@ function submitName() {
 }
 window.submitName = submitName;
 
-//then the header is upades to show uer's name
+//then the header is upades to show uer's name - criterion b 
 function updateTitle() {
   var name = localStorage.getItem("userName");
   var header = document.getElementById("app-title");
   if (name && header) header.textContent = name + "'s Library";
 }
 
-//enter name again or use already saved name (if else conditional statemnt)
+//enter name again or use already saved name (if else conditional statemnt) - criterion c
 async function loadHomePage() {
   var name = localStorage.getItem("userName");
   var nameEntry = document.getElementById("name-entry");
@@ -56,7 +56,7 @@ async function loadHomePage() {
   if (nameEntry) nameEntry.style.display = "none";
   if (homeDashboard) homeDashboard.style.display = "block";
 
-  ///diffrent greeting based on time of day 
+  ///diffrent greeting based on time of day :)
   var hour = new Date().getHours();
   var time = hour < 12 ? "morning" : hour < 18 ? "afternoon" : "evening";
   var greeting = document.getElementById("greeting");
@@ -151,8 +151,9 @@ async function convertPDF() {
   document.getElementById("conversion-progress").style.display = "block";
   document.getElementById("conversion-done").style.display = "none";
 
-  function setStatus(msg, detail, pct) {
-    document.getElementById("conversion-status").textContent = msg;
+  function updateStatus(msg, detail, pct) {
+    // should update progress bar. not working. might remoce and just keep menue
+      document.getElementById("conversion-status").textContent = msg;
     document.getElementById("conversion-detail").textContent = detail || "";
     document.getElementById("conversion-bar").style.width = (pct || 0) + "%";
   }
@@ -176,7 +177,9 @@ async function convertPDF() {
       var content = await page.getTextContent();
 
 
-      // sort items by reading order: top-to-bottom (Y desc), left-to-right (X asc)
+      //extract x and y coordnated from PDF
+      //Pattern from PDF.js
+      // https://mozilla.github.io/pdf.js/examples/ used
       var items = content.items
         .filter(function(item) { return item.str && item.str.trim(); })
         .map(function(item) {
@@ -191,21 +194,22 @@ async function convertPDF() {
         })
         .filter(function(item) { return item.str.trim().length > 0; });
 
-      // Sort: descending Y (top of page first), then ascending X (left to right)
+      // descending Y (top of page first), then ascending X (left to right)
       items.sort(function(a, b) {
         var yDiff = b.y - a.y;
-        // If items are on the same line (within half a line height), sort by X
+        //if items are on the same line sort by X
         if (Math.abs(yDiff) < (a.height * 0.5)) return a.x - b.x;
         return yDiff;
       });
 
-      // Group into lines by proximity
+      //group into lines by proximity
       var lines = [];
       var currentLine = [];
       var lastY = null;
       var lastHeight = 12;
 
       items.forEach(function(item) {
+        //will group text fragments into line using half hte item height
         if (lastY === null || Math.abs(item.y - lastY) < lastHeight * 0.5) {
           currentLine.push(item.str);
         } else {
@@ -262,6 +266,7 @@ async function convertPDF() {
 }
 window.convertPDF = convertPDF;
 
+/*chatgpt. Prompt to find text time*/
 function checkIFPageNum(line) {
   return /^\d+$/.test(line.trim()) || /^-\s*\d+\s*-$/.test(line.trim());
 }
@@ -351,7 +356,7 @@ function isHeading(line) {
     }
 
     // Skip page numbers
-     if (checkIFPageNum(line)) return;
+     if (isPageNumber(line)) return;
     
 
     // Chapter heading — start new chapter
@@ -500,8 +505,9 @@ function hideLoading() {
   var overlay = document.getElementById("loading-overlay");
   if (overlay) overlay.style.display = "none";
 }
-
+/* wait for page to load before anything else */
 document.addEventListener("DOMContentLoaded", async function() {
+
   try {
     await openDatabase();
     console.log("IndexedDB ready");
@@ -510,6 +516,7 @@ document.addEventListener("DOMContentLoaded", async function() {
     console.error("DB failed:", err);
   }
   var darkMode = localStorage.getItem("darkMode");
+
   if (darkMode === "enabled") document.body.classList.add("dark-theme");
   var toggleBtn = document.getElementById("dark-mode-toggle");
   if (toggleBtn) {
