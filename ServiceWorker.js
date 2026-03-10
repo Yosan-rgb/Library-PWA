@@ -1,3 +1,5 @@
+//Polyfill for with no natice cache support
+//Sourced from https://github.com/jimmywarting/cache-polyfill and a https://github.com/nicktindall/cyclon.p2p-webrtc-client 
 if (!Cache.prototype.add) {
   Cache.prototype.add = function add(request) {
     return this.addAll([request]);
@@ -57,6 +59,8 @@ if (!Cache.prototype.addAll) {
   };
 }
 
+//
+
 if (!CacheStorage.prototype.match) {
   CacheStorage.prototype.match = function match(request, opts) {
     var caches = this;
@@ -78,7 +82,7 @@ if (!CacheStorage.prototype.match) {
   };
 }
 
-var myCache = "library-app-cache";
+var myCache = "library-app-v2";
 var cacheReady = false; //to track if caching os finished (still working on)
 
 // complexity - array with all the file's paths so it works offline + other js files as an additional libraries
@@ -100,13 +104,15 @@ var appFiles = [
 ];
 
 self.addEventListener("install", function(event) {
+  self.skipWaiting();
   event.waitUntil(
     caches.open(myCache).then(function(cache) {
       
       var i = 0;
       // loop throught and cache them one by on
       // appFiles is basically a collection that is iterated over with map() - cretiron c
-      // allSettled --> if one fails it doen't break the rest
+      // allSettled () - if one fails it doen't crash everything
+      // source:  https://developer.mozilla.org/en-US/docs/Web/API/Service_Worker_API/Using_Service_Workers
       return Promise.allSettled(
         appFiles.map(function(url) {
           i++;

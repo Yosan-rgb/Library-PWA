@@ -73,7 +73,7 @@ async function loadHomePage() {
   try {
     var books = await getAllBooks();
 
-    // filter to only recent books that are not finished through mathicng IDs to book objects
+    //filter to only recent books that are not finished through mathicng IDs to book objects
     var recent = recentIds
       .map(function(id) { return books.find(function(b) { return b.id === id; }); })
       .filter(Boolean)
@@ -85,17 +85,18 @@ async function loadHomePage() {
     }
     if (noRecent) noRecent.style.display = "none";
     if (container) container.innerHTML = "";
+  
     recent.forEach(function(book) {
       var pct = Math.round((parseFloat(localStorage.getItem("progress_" + book.id)) || 0) * 100);
       
       //manually written card with a lot of innerhtml so that i can control layout
-      //heavily aided by chatgpt
+      //aided by gpt but manually edited
       var card = document.createElement("div");
       card.style.cssText = "background:var(--card-bg);border-radius:14px;padding:14px 16px;margin-bottom:12px;cursor:pointer;display:flex;align-items:center;gap:14px;box-shadow:0 0 0 0.5px var(--border-color);";
       card.innerHTML =
         '<div style="width:42px;height:58px;border-radius:5px;flex-shrink:0;background:' +
         (book.coverUrl ? "none" : "linear-gradient(145deg,#3a3530,#2a2520)") +
-        ';box-shadow:2px 2px 6px rgba(0,0,0,0.15);overflow:hidden;">' +
+        ';box-shadow:2px 2px 6px rgba(0,0,0,0.14);overflow:hidden;">' +
         (book.coverUrl ? '<img src="' + book.coverUrl + '" style="width:100%;height:100%;object-fit:cover;">' : "") +
         '</div><div style="flex:1;min-width:0;">' +
         '<div style="font-size:15px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + book.title + "</div>" +
@@ -114,8 +115,7 @@ async function loadHomePage() {
   } catch (err) {
     console.error("Failed to load recent books:", err);
     if (noRecent) noRecent.style.display = "block";
-  }
-}
+}}
 window.loadHomeDashboard = loadHomePage;
 
 function trackRecentBook(bookId) {
@@ -125,6 +125,7 @@ function trackRecentBook(bookId) {
 }
 window.trackRecentBook = trackRecentBook;
 
+// FLGD
 window.addToLibrary = async function() {
   var fileInput = document.getElementById("epubUpload");
   var file = fileInput ? fileInput.files[0] : null;
@@ -151,7 +152,8 @@ async function convertPDF() {
   document.getElementById("conversion-progress").style.display = "block";
   document.getElementById("conversion-done").style.display = "none";
 
-  function updateStatus(msg, detail, pct) {
+function setStatus(msg, detail, pct) {
+
     // should update progress bar. not working. might remoce and just keep menue
       document.getElementById("conversion-status").textContent = msg;
     document.getElementById("conversion-detail").textContent = detail || "";
@@ -209,7 +211,8 @@ async function convertPDF() {
       var lastHeight = 12;
 
       items.forEach(function(item) {
-        //will group text fragments into line using half hte item height
+
+        //will group text fragments into line using half hte item's height
         if (lastY === null || Math.abs(item.y - lastY) < lastHeight * 0.5) {
           currentLine.push(item.str);
         } else {
@@ -239,19 +242,20 @@ async function convertPDF() {
 
     setStatus("Adding to library…", "", 90);
 
-    // Add to library as a real EPUB file
+    //should add to library as a real EPUB file. unsuccessful. need to extract blob more accurately
     var epubFile = new File([epubBlob], title + ".epub", { type: "application/epub+zip" });
     await saveBook(epubFile);
     await refreshLibrary();
 
-    // Set up download
+    //will give option do donwload directly to files. Dunja will want to check
+    //dissapears when page is left
     var oldUrl = document.getElementById("download-link").href;
     if (oldUrl && oldUrl.startsWith("blob:")) URL.revokeObjectURL(oldUrl);
     var url = URL.createObjectURL(epubBlob);
     var dl = document.getElementById("download-link");
     dl.href = url;
 
-    // Show done state
+    
     document.getElementById("conversion-progress").style.display = "none";
     document.getElementById("conversion-done").style.display = "block";
     document.getElementById("conversion-book-title").textContent = title;
@@ -266,33 +270,32 @@ async function convertPDF() {
 }
 window.convertPDF = convertPDF;
 
-/*chatgpt. Prompt to find text time*/
+/*source chatgpt*/
 function checkIFPageNum(line) {
   return /^\d+$/.test(line.trim()) || /^-\s*\d+\s*-$/.test(line.trim());
 }
 
 function findChapters(pages, totalPages) {
-  // Sanitize all lines
+  
   pages = pages.map(function(pageLines) {
     return pageLines
       .map(function(l) {
-        return l.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, "")
-                .replace(/\uFFFD/g, "").trim();
+        return l.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, "") .replace(/\uFFFD/g, "").trim();
       })
       .filter(function(l) { return l.length > 0; });
   });
 
-  // Flatten all lines across all pages into one stream
-  // keeping track of page breaks as natural paragraph breaks
+
+  //first flatten all lines of whole file int one stream
+  //keep track of page breaks as make paragraph breaks
   var allLines = [];
   pages.forEach(function(pageLines, pageIdx) {
-    if (pageIdx > 0) allLines.push(null); // null = page break
+  if (pageIdx > 0) allLines.push(null); // null = page break
+    
     pageLines.forEach(function(line) { allLines.push(line); });
   });
 
-  // Build paragraphs: a blank line or page break = new paragraph
-  // Short isolated lines that match heading patterns = chapter break
-
+ 
 var chapterPatterns = [
   /^chapter\s+[\divxlcIVXLC]+/i,
   /^chapter\s+\w+/i,
@@ -302,7 +305,7 @@ var chapterPatterns = [
   /^introduction$/i,
   /^afterword$/i,
   /^interlude$/i,
-  /^episode\s+\d+/i,          // ← ADD: "Episode 1", "Episode 42"
+  /^episode\s+\d+/i,          
   /^\[chapter\s+\d+/i,
   /^\[episode\s+\d+/i,
   /^\[ep\.?\s+\d+/i,
@@ -317,15 +320,14 @@ function isHeading(line) {
     if (chapterPatterns[i].test(line.trim())) return true;
   }
 
-  // All-caps rule — much stricter now:
-  // Must be 3+ real words, no digits, no special chars, no dots
+  //much stricter now to avoid random slip ins. all caps. must be 3+ real words, no digits, no symbls, no dots
   var trimmed = line.trim();
   if (
     trimmed === trimmed.toUpperCase() &&
     trimmed.length >= 6 &&
     trimmed.length <= 40 &&
-    /^[A-Z][A-Z\s]+$/.test(trimmed) &&   // only letters and spaces
-    trimmed.split(" ").filter(Boolean).length >= 2  // at least 2 words
+    /^[A-Z][A-Z\s]+$/.test(trimmed) &&  
+    trimmed.split(" ").filter(Boolean).length >= 2 
   ) return true;
 
   return false;
@@ -344,51 +346,41 @@ function isHeading(line) {
   function saveChapter() {
     savePara();
     if (currentChapter.paragraphs.length > 0) {
-      chapters.push(currentChapter);
-    }
-  }
+      chapters.push(currentChapter); }
+}
 
   allLines.forEach(function(line) {
-    // Page break — flush current paragraph
+    //
     if (line === null) {
       savePara();
-      return;
-    }
+      return;}
 
-    // Skip page numbers
-     if (isPageNumber(line)) return;
-    
-
-    // Chapter heading — start new chapter
+     if (isPageNumber(line)) return;    
+  
     if (isHeading(line)) {
       saveChapter();
-      currentChapter = { title: line.trim(), paragraphs: [] };
-      return;
-    }
+    currentChapter = { title: line.trim(), paragraphs: [] };
+      return;}
 
-    // Empty line = paragraph break
     if (line.trim() === "") {
       savePara();
-      return;
-    }
+      return; }
 
-    // Line ending mid-sentence (no period/quote) — continue paragraph
-    // Line ending with sentence-ending punctuation — could end paragraph
+    //if lLine endsw no period/quote always continue as paragraph
     currentPara.push(line.trim());
 
-    // If line ends with sentence-ending punct AND next behaviour suggests
+    // if line ends with sentence-ending punct AND next behaviour suggests
     // paragraph end, flush. For now flush on lines that end with period
     // followed by what looks like a new paragraph start.
     var endsCleanly = /[.!?'"»]\s*$/.test(line);
     if (endsCleanly && currentPara.length > 2) {
-      // Don't auto-flush here — let blank lines do it
-      // This preserves dialogue and multi-sentence paragraphs
-    }
-  });
+}});
+
 
   saveChapter();
 
-  // if no chapters found, make one per N paragraphs
+//check if arithmetic criteron in complexity
+  //if no chapters found, make one per N paragraphs
   if (chapters.length <= 1 && chapters[0] && chapters[0].paragraphs.length > 30) {
     var allParas = chapters[0].paragraphs;
     chapters = [];
@@ -397,12 +389,11 @@ function isHeading(line) {
       chapters.push({
         title: "Part " + (Math.floor(i / groupSize) + 1),
         paragraphs: allParas.slice(i, i + groupSize)
-      });
-    }
-  }
+   });
+}}
 
-  // Convert to content HTML
-  // assited by ai when opened EPUB's kept watermarks and random characters
+  //to htmll
+  //section assited by ai when opened EPUB's kept watermarks and random characters
   return chapters.map(function(ch) {
     return {
       title: ch.title,
@@ -416,9 +407,7 @@ function isHeading(line) {
              .replace(/[\x00-\x08\x0B\x0C\x0E-\x1F]/g,"") +
           "</p>";
         }).join("\n")
-    };
-  });
-}
+  };});}
 
 async function makeEpub(title, chapters) {
   var zip = new JSZip();
@@ -482,13 +471,13 @@ async function makeEpub(title, chapters) {
   });
 }
 
-function resetConverter() {
+function resetConversion() {
   document.getElementById("conversion-done").style.display = "none";
   document.getElementById("conversion-idle").style.display = "block";
   var inp = document.getElementById("pdfFileInput");
   if (inp) inp.value = "";
 }
-window.resetConverter = resetConverter;
+window.resetConversion = resetConversion;
 function showLoading() {
   var overlay = document.getElementById("loading-overlay");
   if (!overlay) {
@@ -498,14 +487,13 @@ function showLoading() {
     overlay.style.cssText = "position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;z-index:2000;";
     document.body.appendChild(overlay);
   }
-  overlay.style.display = "flex";
-}
+  overlay.style.display = "flex";}
 
 function hideLoading() {
   var overlay = document.getElementById("loading-overlay");
-  if (overlay) overlay.style.display = "none";
-}
-/* wait for page to load before anything else */
+  if (overlay) overlay.style.display = "none";} 
+
+/*will wait for page toload before anything else */
 document.addEventListener("DOMContentLoaded", async function() {
 
   try {
@@ -515,6 +503,8 @@ document.addEventListener("DOMContentLoaded", async function() {
   } catch (err) {
     console.error("DB failed:", err);
   }
+
+//
   var darkMode = localStorage.getItem("darkMode");
 
   if (darkMode === "enabled") document.body.classList.add("dark-theme");
@@ -522,17 +512,15 @@ document.addEventListener("DOMContentLoaded", async function() {
   if (toggleBtn) {
     toggleBtn.textContent = darkMode === "enabled" ? "Light Mode" : "Dark Mode";
     toggleBtn.addEventListener("click", function() {
-      var isDark = document.body.classList.toggle("dark-theme");
-      localStorage.setItem("darkMode", isDark ? "enabled" : "disabled");
-      toggleBtn.textContent = isDark ? "Light Mode" : "Dark Mode";
+    var isDark = document.body.classList.toggle("dark-theme"); localStorage.setItem("darkMode", isDark ? "enabled" : "disabled");
+  toggleBtn.textContent = isDark ? "Light Mode" : "Dark Mode";
     });
   }
   document.getElementById("pdfFileInput").addEventListener("change", function() {
-  if (this.files[0]) convertPDF();
-});
+  if (this.files[0]) convertPDF();});  
+
 document.getElementById("epubUpload").addEventListener("change", function() {
   if (this.files[0]) addToLibrary();
   });
-  window.loadHomePage = loadHomePage();
-  setupUI();
-});
+window.loadHomePage = loadHomePage;
+loadHomePage(); } ) ;

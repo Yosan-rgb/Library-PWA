@@ -20,7 +20,7 @@ export async function saveBook(file) {
     *   - Ba    
     */
 
-    // step 1: find OPF path from container.xml
+    // first get the path to the opf file from containter.xml
     const containerFile = zip.file("META-INF/container.xml");
     if (!containerFile) throw new Error("No container.xml");
     const containerXml = await containerFile.async("text");
@@ -29,22 +29,23 @@ export async function saveBook(file) {
     const opfPath = opfMatch[1];
     const opfDir = opfPath.includes("/") ? opfPath.substring(0, opfPath.lastIndexOf("/") + 1) : "";
 
-    // Step 2: parse OPF
+    //parse the OPF (book's metadate here)
     const opfFile = zip.file(opfPath);
     if (!opfFile) throw new Error("No OPF file");
     const opfXml = await opfFile.async("text");
     const parser = new DOMParser();
     const opfDoc = parser.parseFromString(opfXml, "application/xml");
 
-    // Step 3: title
+    //grab the title - loby ok for <title> or <dc:title>
     const titleEl = opfDoc.querySelector("title") || opfDoc.querySelector("dc\\:title");
     if (titleEl && titleEl.textContent.trim()) title = titleEl.textContent.trim();
 
-    // Step 4: find cover image. 
+    //getting the cover image. Differs by EPUB type. 4 attempts to cover ever scenario
     let coverHref = null;
 
   
-    // cover extraction try A:
+  
+    // cover extraction try 1 for EPUB2s. will look for meta tag with <meta name="cover"> tag
     const coverMeta = opfDoc.querySelector("meta[name='cover']");
     if (coverMeta) {
       const coverId = coverMeta.getAttribute("content");
@@ -52,13 +53,13 @@ export async function saveBook(file) {
       if (coverItem) coverHref = coverItem.getAttribute("href");
     }
 
-    //  B: item with properties="cover-image"
+    //  2 looks for items with properties="cover-image"
     if (!coverHref) {
       const propItem = opfDoc.querySelector("item[properties='cover-image']");
       if (propItem) coverHref = propItem.getAttribute("href");
     }
 
-    // C: use item whose id contains "cover" and is an image
+    //3 will use item whose id contains "cover" and is an image
     if (!coverHref) {
       const items = opfDoc.querySelectorAll("item");
       for (let i = 0; i < items.length; i++) {
@@ -71,14 +72,14 @@ export async function saveBook(file) {
       }
     }
 
-    //*  D: just use first image in manifest
+    //4 last resort. will just use first image found or first page. but ensures ther's a cover
     if (!coverHref) {
       const firstImg = opfDoc.querySelector("item[media-type^='image/']");
       if (firstImg) coverHref = firstImg.getAttribute("href");
     }
 
     if (coverHref) {
-      // resolve relative to OPF directory, handle 
+      //some epubs ise relative paths (/images/cover.jpg/) and js doesnt have resovler for this
       const resolvePath = function(base, rel) {
         if (rel.startsWith("/")) return rel.substring(1);
         const parts = (base + rel).split("/");
@@ -153,6 +154,7 @@ export function getBookById(id) {
 }
 
 export function deleteBook(id) {
+  // added after client request. Cretirion E time test
   return new Promise(function(resolve, reject) {
     const db = getDB();
     const tx = db.transaction(STORE_NAME, "readwrite");
@@ -163,10 +165,11 @@ export function deleteBook(id) {
   });
 }
 
+//have to get then place in indexeddb
 export function updateBookTitle(id, newTitle) {
   return new Promise(function(resolve, reject) {
     const db = getDB();
-    const tx = db.transaction(STORE_NAME, "readwrite");
+  const tx = db.transaction(STORE_NAME, "readwrite");
     const store = tx.objectStore(STORE_NAME);
     const getReq = store.get(id);
     getReq.onsuccess = function() {

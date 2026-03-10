@@ -56,13 +56,7 @@ function saveHighlights(hl) { localStorage.setItem("highlights_" + bookId, JSON.
   var epub = ePub(arrayBuffer);
   console.log("epub created:", epub);
   var viewerEl = document.getElementById("viewer");
-  var rendition = epub.renderTo("viewer", {
-    width: viewerEl.offsetWidth,
-    height: viewerEl.offsetHeight,
-    flow: "pagebypage",
-    spread: "none",
-    allowScriptedContent: true
-});
+);
 
 var rendition = epub.renderTo("viewer", {
   width: viewerEl.offsetWidth,
