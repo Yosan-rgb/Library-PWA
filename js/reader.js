@@ -61,7 +61,7 @@ function showUI() {
 var rendition = epub.renderTo("viewer", {
   width: viewerEl.offsetWidth,
 height: viewerEl.offsetHeight,
-  flow: "pagebypage",
+  flow: "paginated",
   spread: "none",
   allowScriptedContent: true,
   allowPopups: true 
@@ -74,7 +74,7 @@ if (savedMode === "scroll") {
   document.getElementById("mode-scroll").classList.add("active");
   document.getElementById("mode-pagebypage").classList.remove("active");
 } else {
-  rendition.flow("pagebypage");
+  rendition.flow("paginated");
   document.getElementById("mode-pagebypage").classList.add("active");
   document.getElementById("mode-scroll").classList.remove("active");
 }
@@ -123,12 +123,24 @@ function updateProgress(cfi) {
   var totalPages = loc && loc.start && loc.start.displayed && loc.start.displayed.total;
 
   if (pageNum && totalPages && pageNum > 0) {
-    
+   
+   var pctDone = Math.round((pageNum / totalPages) * 100);
+if (pctDone >= 95 && localStorage.getItem("finished_" + bookId) !== "true" && !localStorage.getItem("donePrompt_" + bookId)) {
     pageEl.textContent = "p. " + pageNum + " of " + totalPages;
     localStorage.setItem("progress_" + bookId, pageNum / totalPages);
     if (window.autoMarkDone) window.autoMarkDone(bookId, Math.round((pageNum / totalPages) * 100));
     return;
   }
+
+    localStorage.setItem("donePrompt_" + bookId, "true");
+  setTimeout(function() {
+    var toast = document.createElement("div");
+    toast.innerHTML = '📖 Mark as done? <button onclick="localStorage.setItem(\'finished_\' + \'' + bookId + '\', \'true\'); this.parentElement.remove();" style="margin-left:10px;background:var(--accent);border:none;border-radius:8px;padding:4px 10px;font-weight:600;cursor:pointer;">Yes</button>';
+    toast.style.cssText = "position:fixed;bottom:100px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.82);color:#fff;padding:10px 16px;border-radius:16px;font-size:14px;z-index:9999;white-space:nowrap;";
+    document.body.appendChild(toast);
+    setTimeout(function() { if (toast.parentElement) toast.remove(); }, 6000);
+  }, 1000);
+}
 
   //fall back
   var spineItems = epub.spine.spineItems;
@@ -163,7 +175,9 @@ function updateProgress(cfi) {
   }, { passive: true });
 
   iframeDoc.addEventListener("touchend", function(e) {
-    var dx = e.changedTouches[0].clientX - startX;
+     if (iframeDoc.defaultView.getSelection().toString().trim()) return; 
+
+  var dx = e.changedTouches[0].clientX - startX;
     var dy = e.changedTouches[0].clientY - startY;
     var dt = Date.now() - startTime;
     var absDx = Math.abs(dx);
@@ -229,18 +243,36 @@ function updateProgress(cfi) {
     showUI();
   });
 
-  // ─ Highlights 
+//
   rendition.on("selected", function(cfiRange, contents) {
     var text = contents.window.getSelection().toString().trim();
     if (!text) return;
+
+    
+
+   
+ var hl = getHighlights();
+  var existingIdx = hl.findIndex(function(h) { return h.cfi === cfiRange; });
+  if (existingIdx !== -1) {
+    rendition.annotations.remove(cfiRange, "highlight");
+    hl.splice(existingIdx, 1);
+    saveHighlights(hl);
+    showToast("Highlight removed");
+    return; 
     rendition.annotations.highlight(cfiRange, {}, function() {}, "highlight", {
       "fill": "#ffe066", "fill-opacity": "0.4", "mix-blend-mode": "multiply"
     });
-    var hl = getHighlights();
-    hl.push({ cfi: cfiRange, text: text, savedAt: Date.now() });
-    saveHighlights(hl);
-    showToast("Highlighted ✓");
+  }
+
+  rendition.annotations.highlight(cfiRange, {}, function() {}, "highlight", {
+    "fill": "#ffe066", "fill-opacity": "0.4", "mix-blend-mode": "multiply"
   });
+  hl.push({ cfi: cfiRange, text: text, savedAt: Date.now() });
+  saveHighlights(hl);
+  showToast("Highlighted ✓");
+});
+
+  
 
   //  Settings 
   var settingsPanel = document.getElementById("settings-panel");
@@ -258,7 +290,7 @@ function updateProgress(cfi) {
   document.getElementById("mode-scroll").classList.remove("active");
 
 document.getElementById("mode-pagebypage").addEventListener("click", function() {
-  rendition.flow("pagebypage");
+  rendition.flow("paginated");
   localStorage.setItem("readingMode_" + bookId, "pagebypage");
   document.getElementById("mode-pagebypage").classList.add("active");
   document.getElementById("mode-scroll").classList.remove("active");
