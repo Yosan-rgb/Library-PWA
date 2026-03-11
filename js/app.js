@@ -31,20 +31,25 @@ window.showSection = showTab;
 function submitName() {
   var input = document.getElementById("usernameInput");   
  var name = input ? input.value.trim() : "";
-  var name = rawInput.trim();
 
   if (!name) return;
   localStorage.setItem('userName', name);
-  updateTitle();
+   updateTitle();
   loadHomeDashboard();
 }
 window.submitName = submitName;
+
+
+
+// var pct = 0;
+// console.log(book)
 
 //then the header is upades to show uer's name - criterion b 
 function updateTitle() {
   var name = localStorage.getItem("userName");
   var header = document.getElementById("app-title");
-  if (name && header) header.textContent = name + "'s Library";
+  if (name && header)
+header.textContent = name+ "'s Library";
 }
 
 //enter name again or use already saved name (if else conditional statemnt) - criterion c
@@ -75,7 +80,7 @@ async function loadHomePage() {
     return;
   }
   try {
-    var books = await getAllBooks();
+    let books = await getAllBooks();
 
     //filter to only recent books that are not finished through mathicng IDs to book objects
     var recent = recentIds
@@ -231,7 +236,11 @@ function setStatus(msg, detail, pct) {
 
     setStatus("Detecting chapters…", "", 62);
 
-    // find chapter 
+function isPageNumber(line) {
+  return /^\d+$/.test(line.trim());
+}
+
+
     var chapters = findChapters(pages, totalPages);
 
     setStatus("Building EPUB…", chapters.length + " chapters found", 75);
@@ -480,7 +489,7 @@ async function makeEpub(title, chapters) {
   if (!overlay) {
     overlay = document.createElement("div");
     overlay.id = "loading-overlay";
-    overlay.innerHTML = '<div class="spinner"></div>';
+     overlay.innerHTML = '<div class="spinner"></div>';
     overlay.style.cssText = "position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;z-index:2000;";
     document.body.appendChild(overlay);
   }
@@ -495,9 +504,9 @@ function hideLoading() {
 document.addEventListener("DOMContentLoaded", async function() {
 
   try {
-    await openDatabase();
-    console.log("IndexedDB ready");
-    libraryHealthCheck();
+    //await openDatabase();
+    //console.log("IndexedDB ready");
+    //libraryHealthCheck();
   } catch (err) {
     console.error("DB failed:", err);
   }
@@ -522,5 +531,5 @@ document.getElementById("epubUpload").addEventListener("change", function() {
   });
 window.loadHomePage = loadHomePage;
 await loadHomePage();
-await setupUI();
+ await setupUI();
 });

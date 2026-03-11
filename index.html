@@ -43,14 +43,16 @@
 
 
   <div id="home-dashboard" style="display:none;">
-  <h2 id="greeting" style="font-size:26px; font-weight:700; letter-spacing:-0.5px; margin-bottom:4px;"></h2>
-  <p style="color:var(--text-secondary); font-size:15px; margin-bottom:32px;">Ready to keep reading?</p>
+<h2 id="greeting" style="font-size:26px; font-weight:700;
+  letter-spacing:-0.5px; margin-bottom:4px;"></h2>
 
-  <p style="font-size:11px; font-weight:600; letter-spacing:0.8px; color:var(--text-secondary); margin-bottom:12px;">CONTINUE READING</p>
-  <div id="recent-books" style="margin-bottom:36px;">
+  <p style="color:var(--text-secondary); font-size:15px; margin-bottom:32px;">Ready to keep reading?</p>
+ <p style="font-size:11px; font-weight:600; letter-spacing:0.8px;
+color:var(--text-secondary); margin-bottom:12px;">CONTINUE READING</p>
+
+<div id="recent-books" style="margin-bottom:36px;">
 
     <p id="no-recent" style="color:var(--text-secondary); font-size:15px; background:var(--card-bg); padding:16px; border-radius:12px;">No books opened yet.</p> </div>
-
   <p style="font-size:11px; font-weight:600; letter-spacing:0.8px; color:var(--text-secondary); margin-bottom:12px;">BROWSE</p>
   <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
     <button onclick="showTab('library-tab')" style="background:var(--card-bg);color:var(--text-color);border-radius:14px;padding:18px 12px;font-size:14px;font-weight:600; box-shadow:0 0 0 0.5px var(--border-color);">
@@ -65,6 +67,8 @@
   <h2>Library</h2>
   <p>Your collection</p>
   <ul id="libraryList" class="ios-group"></ul>
+
+<!-- epub upload. accepts .epub only, pdf goes through converter instead -->
   <input type="file" id="epubUpload" accept=".epub" style="display:none;">
 
 <button type="button" onclick="document.getElementById('epubUpload').click()">add a book</button>
@@ -170,7 +174,7 @@
 </nav>
 
 
-  <!-- the Service Worker integration/ -->
+  <!-- Service Worker integration.  -->
   <script>
 
     // will only try register if supported, won't cause any issues if fails. safari might not support. doubtle chcek

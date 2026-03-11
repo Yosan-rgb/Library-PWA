@@ -37,10 +37,9 @@ function showUI() {
     uiVisible = false;
     headerEl.classList.add("hidden");
     footerEl.classList.add("hidden");
-  }
+}
   function resetHideTimer() {
-  clearTimeout(hideTimer);
-  }
+  clearTimeout(hideTimer); }
 
 document.addEventListener('touchstart', function() { showUI() }, {passive:true});
   resetHideTimer();
@@ -55,7 +54,7 @@ document.addEventListener('touchstart', function() { showUI() }, {passive:true})
 
   var arrayBuffer = await book.data.arrayBuffer();
   var epub = ePub(arrayBuffer);
-  console.log("epub created:", epub);
+   console.log("epub created:", epub);
   var viewerEl = document.getElementById("viewer");
 
 var rendition = epub.renderTo("viewer", {  
@@ -77,19 +76,17 @@ if (savedMode === "scroll") {
 } else {
   rendition.flow("paginated");
   document.getElementById("mode-pagebypage").classList.add("active");
-  document.getElementById("mode-scroll").classList.remove("active");
-}
+  document.getElementById("mode-scroll").classList.remove("active");}
 
 var savedCfi = localStorage.getItem("cfi_" + bookId);
 if (savedCfi) rendition.display(savedCfi);
 else rendition.display();
 
-//only shows tip once per book to avoid annoying DJ
+//only shows tip once per book to avoid annoying user
 setTimeout(function() {
 showToast("tip: select any text to highlight it");
     localStorage.setItem("highlightHintSeen", "true");
   }, 2000);
-
 
 rendition.on("relocated", function(location) {
   var cfi = location.start.cfi;
@@ -102,7 +99,7 @@ rendition.on("relocated", function(location) {
 
   rendition.on("rendered", function() {
   console.log("Chapter rendered");
-});
+} );
 
 
 //page numbers beacasue progress bar isn't functioning 
@@ -141,9 +138,7 @@ function updateProgress(cfi) {
   if (spinePos !== -1) {
     pageEl.textContent = (spinePos + 1) + " / " + spineItems.length;
     localStorage.setItem("progress_" + bookId, (spinePos + 1) / spineItems.length);
-    if (window.autoMarkDone) window.autoMarkDone(bookId, Math.round(((spinePos + 1) / spineItems.length) * 100));
-  }
-}
+    if (window.autoMarkDone) window.autoMarkDone(bookId, Math.round(((spinePos + 1) / spineItems.length) * 100)); }}
 
     rendition.on("rendered", function(section, view) {
   var iframeDoc = view.document;
@@ -166,7 +161,7 @@ function updateProgress(cfi) {
     var dy = e.changedTouches[0].clientY - startY;
     var dt = Date.now() - startTime;
     var absDx = Math.abs(dx);
-    var absDy = Math.abs(dy);
+    var absDy = Math.abs(dy); 
 
     // swipe
     if (absDx > 40 && absDx > absDy) {
@@ -224,8 +219,7 @@ function updateProgress(cfi) {
       saveBookmarks(bms);
       document.getElementById("bookmark-btn").textContent = "🔖";
       showToast("Bookmarked ✓");}
-    showUI();
-  });
+    showUI();  });
 
 //
   rendition.on("selected", function(cfiRange, contents) {
@@ -356,8 +350,9 @@ if (savedFont && fonts[savedFont]) {
   var fonts = {
     sans: "-apple-system, 'Helvetica Neue', sans-serif",
     serif: "Georgia, 'Times New Roman', serif",
-    mono: "'Courier New', Courier, monospace"
-  };
+    mono: "'Courier New', Courier, monospace"};
+
+
   ["sans", "serif", "mono"].forEach(function(name) {
     var btn = document.getElementById("font-" + name);
     if (!btn) return;
@@ -368,7 +363,7 @@ if (savedFont && fonts[savedFont]) {
         b.classList.toggle("active", b.id === "font-" + name);
       });
   });
-  });
+  }) ;
 
 
   function openBookmarksPanel(){
@@ -407,7 +402,7 @@ if (savedFont && fonts[savedFont]) {
   function openHighlightsPanel()  {
     settingsPanel.style.display = "none";
     var panel = document.getElementById("highlights-panel");
-    var list = document.getElementById("highlights-list");
+     var list = document.getElementById("highlights-list");
     var hls = getHighlights();
     list.innerHTML = "";
     if (!hls.length) {
@@ -433,7 +428,7 @@ if (savedFont && fonts[savedFont]) {
     }
     panel.style.display = "block";
   }
-  document.getElementById("open-highlights-btn").addEventListener("click", openHighlightsPanel);
+   document.getElementById("open-highlights-btn").addEventListener("click", openHighlightsPanel);
   document.getElementById("highlights-overlay").addEventListener("click", function() {
     document.getElementById("highlights-panel").style.display = "none";
   });
@@ -506,12 +501,12 @@ if (savedFont && fonts[savedFont]) {
         searchResults.appendChild(div);
       });
     } catch (err) {
-      searchResults.innerHTML = "<div style='padding:10px;font-size:13px;color:#ff453a;'>Search failed.</div>";
+       searchResults.innerHTML = "<div style='padding:10px;font-size:13px;color:#ff453a;'>Search failed.</div>";
     }});
 
    
   function showToast(msg) {  
-    var toast = document.getElementById("toast");
+     var toast = document.getElementById("toast");
     if (!toast) {
       toast = document.createElement("div"); 
       toast.id = "toast";
@@ -522,6 +517,4 @@ if (savedFont && fonts[savedFont]) {
     toast.style.opacity = "1";
     clearTimeout(toast._t);
     toast._t = setTimeout(function() { toast.style.opacity = "0"; }, 1800);
-  } 
-
-})();
+  } })();
