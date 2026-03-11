@@ -37,7 +37,7 @@ self.addEventListener("install", function(event) {
       // source:  https://developer.mozilla.org/en-US/docs/Web/API/Service_Worker_API/Using_Service_Workers
     return Promise.allSettled(
   appFiles.map(function(url) {
-    return caches.add(url).catch(function(err) {
+    return cache.add(url).catch(function(err) {
       console.warn("Could not cache:", url, err);
     }); }));
       
