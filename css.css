@@ -15,14 +15,14 @@
   --border-color: rgba(0,0,0,0.08);
   --accent: #96e282; /*dunja approved this green lol*/
   --tab-on: #96e282;
-  --tab-off: #8e8e9;
+  --tab-off: #8e8e93;
   --ease: 0.2s ease;
 
   --bg-color: #f2f2f7;
 
 }
 
-///* dark theme vars. dunja reads at night so this gets used a lot */
+/* dark theme vars. dunja reads at night so this gets used a lot */
 body.dark-theme {
   --bg-color: #1c1c1e;
   --text-color: #ffffff;
@@ -376,4 +376,4 @@ to { transform: rotate(360deg); }}
   font-size: 14px;
   color: var(--text-secondary);
   margin: 0;
-}\
+}

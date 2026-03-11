@@ -1,4 +1,4 @@
-var myCache = "library-app-v2";
+var myCache = "library-app";
 
 // complexity- array with all the file's paths so it works offline + other js files as an additional librariess
 
@@ -84,10 +84,10 @@ self.addEventListener("fetch", function(event) {
         }
 
         //need to clone the new response into the xache for next
-        var response = response.clone();
+      var copy = response.clone();
 
         caches.open(myCache).then(function(cache) {
-          cache.put(event.request, responsecopy);
+            cache.put(event.request, copy);
       });
 
         return response;

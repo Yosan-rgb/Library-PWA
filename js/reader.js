@@ -45,7 +45,7 @@ document.addEventListener('touchstart', function() { showUI() }, {passive:true})
   resetHideTimer();
 
 
-  await openDatabase();
+//await openDatabase();
   var book = await getBookById(bookId);
   if (!book) { alert("Book not found."); window.location.href = "index.html"; return; }
 
@@ -291,6 +291,15 @@ var themeStyles = {
     sepia: { body: { background: "#f4ecd8", color: "#3b2f1e" } },
     dark:  { body: { background:  "#1c1c1e", color: "#e5e5e7" } }
   };
+
+
+   var fonts = {
+    sans: "-apple-system, 'Helvetica Neue', sans-serif",
+    serif: "Georgia, 'Times New Roman', serif",
+    mono: "'Courier New', Courier, monospace"};
+
+
+    
   Object.keys(themes).forEach(function(name) { rendition.themes.register(name, themes[name]); });
   rendition.themes.select("light");
 
@@ -346,11 +355,6 @@ if (savedFont && fonts[savedFont]) {
     document.getElementById("font-size-label").textContent = fontSize + "%";
     localStorage.setItem("fontSize_" + bookId, fontSize);
   });
-
-  var fonts = {
-    sans: "-apple-system, 'Helvetica Neue', sans-serif",
-    serif: "Georgia, 'Times New Roman', serif",
-    mono: "'Courier New', Courier, monospace"};
 
 
   ["sans", "serif", "mono"].forEach(function(name) {
