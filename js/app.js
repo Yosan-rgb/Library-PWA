@@ -475,14 +475,7 @@ async function makeEpub(title, chapters) {
   });
 }
 
-  var overlay = document.getElementById("loading-overlay");
-  if (!overlay) {
-    overlay = document.createElement("div");
-    overlay.id = "loading-overlay";
-    overlay.innerHTML = '<div class="spinner"></div>';
-    overlay.style.cssText = "position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;z-index:2000;";
-    document.body.appendChild(overlay);
-  }
+
   
   function showLoading() {
   var overlay = document.getElementById("loading-overlay");
