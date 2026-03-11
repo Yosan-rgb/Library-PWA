@@ -1,4 +1,4 @@
-import { openDatabase } from "./db.js";
+//import { openDatabase } from "./db.js";
 import { setupUI, refreshLibrary } from "./ui.js";
 import { libraryHealthCheck, saveBook, getAllBooks } from "./library.js";
 
@@ -503,13 +503,12 @@ function hideLoading() {
 /*will wait for page toload before anything else */
 document.addEventListener("DOMContentLoaded", async function() {
 
-  try {
+  // try {
     //await openDatabase();
     //console.log("IndexedDB ready");
     //libraryHealthCheck();
-  } catch (err) {
-    console.error("DB failed:", err);
-  }
+  //} catch (err) {
+    //console.error("DB failed:", err);}
 
 //
   var darkMode = localStorage.getItem("darkMode");
