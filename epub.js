@@ -281,33 +281,10 @@
       return css;
     }
 
-    // ── chapter loading ──
+    // ── helpers: process a single raw XHTML string into body HTML + resolved images ──
 
-    async function loadChapter(idx, startFrac) {
-      await book.ready;
-      if (!book._chapters.length) return;
-
-      revokeBlobUrls(); // FIX 4 — free memory from previous chapter
-
-      idx   = Math.max(0, Math.min(idx, book._chapters.length - 1));
-      chIdx = idx;
-      page  = 0;
-
-      var ch  = book._chapters[idx];
-      var raw = "";
-      try {
-        raw = await book._zip.file(ch.path).async("text");
-      } catch (e) {
-        raw = "<html><body><p>Could not load this chapter.</p></body></html>";
-      }
-
-      var chDir = ch.path.includes("/")
-        ? ch.path.slice(0, ch.path.lastIndexOf("/") + 1) : book._dir;
-
-      // FIX 2 — grab the book's own styles before rewriting the page
-      var bookCss = await extractBookCss(raw, chDir);
-
-      // resolve image src attributes → blob URLs so they display correctly
+    async function processRawChapter(raw, chDir) {
+      // resolve image src → blob URLs
       var imgRe = /src="([^"]+)"/gi;
       var im;
       while ((im = imgRe.exec(raw)) !== null) {
@@ -317,15 +294,113 @@
             var zipImg = book._zip.file(resolvePath(chDir, src));
             if (zipImg) {
               var blobUrl = URL.createObjectURL(await zipImg.async("blob"));
-              activeBlobUrls.push(blobUrl); // FIX 4 — track for revocation
+              activeBlobUrls.push(blobUrl);
               raw = raw.split('src="' + src + '"').join('src="' + blobUrl + '"');
             }
           } catch (e) { /* image not in ZIP */ }
         }
       }
+      var bodyMatch = raw.match(/<body[^>]*>([\s\S]*?)<\/body>/i);
+      return bodyMatch ? bodyMatch[1] : raw;
+    }
 
-      var bodyMatch   = raw.match(/<body[^>]*>([\s\S]*?)<\/body>/i);
-      var bodyContent = bodyMatch ? bodyMatch[1] : raw;
+    // ── SCROLL MODE: load ALL chapters as one continuous document ──
+    // Each chapter gets a <section id="ch-N"> so TOC links can jump to it.
+
+    async function loadAllChapters(startFrac) {
+      await book.ready;
+      if (!book._chapters.length) return;
+
+      revokeBlobUrls();
+      chIdx = 0;
+      page  = 0;
+
+      var allCss     = "";
+      var allSections = [];
+
+      for (var i = 0; i < book._chapters.length; i++) {
+        var ch    = book._chapters[i];
+        var raw   = "";
+        try { raw = await book._zip.file(ch.path).async("text"); }
+        catch (e) { raw = "<p>Could not load chapter.</p>"; }
+
+        var chDir = ch.path.includes("/")
+          ? ch.path.slice(0, ch.path.lastIndexOf("/") + 1) : book._dir;
+
+        // collect CSS from first chapter only (avoids duplicate rules)
+        if (i === 0) allCss = await extractBookCss(raw, chDir);
+
+        var bodyHtml = await processRawChapter(raw, chDir);
+        allSections.push('<section id="ch-' + i + '" data-ch="' + i + '">' + bodyHtml + '</section>');
+      }
+
+      var viewW = iframe.clientWidth  || wrap.clientWidth  || window.innerWidth;
+      var viewH = iframe.clientHeight || wrap.clientHeight || window.innerHeight;
+
+      var doc = iDoc();
+      doc.open();
+      doc.write(buildPageHtml(allSections.join("\n"), allCss, viewW, viewH));
+      doc.close();
+
+      await new Promise(function (r) { requestAnimationFrame(function () { setTimeout(r, 80); }); });
+
+      // restore scroll position
+      if (startFrac > 0) {
+        var el = doc.documentElement;
+        el.scrollTop = startFrac * Math.max(1, el.scrollHeight - el.clientHeight);
+      }
+
+      // re-apply all stored highlights into the single document
+      Object.keys(storedHighlights).forEach(function (cfi) {
+        wrapTextInMark(doc, storedHighlights[cfi].text);
+      });
+
+      var view = { document: doc, window: iframe.contentWindow };
+      listeners.rendered.forEach(function (fn) { fn({ index: 0 }, view); });
+
+      attachSelectionListener(doc);
+      attachScrollListener(doc);   // update chIdx as user scrolls
+      fireRelocated(doc);
+    }
+
+    // track which chapter the user is currently reading based on scroll position
+    function attachScrollListener(doc) {
+      doc.addEventListener("scroll", function () {
+        // find which section is most visible
+        var sections = doc.querySelectorAll("section[data-ch]");
+        var mid = doc.documentElement.scrollTop + (iframe.clientHeight / 2);
+        for (var i = sections.length - 1; i >= 0; i--) {
+          if (sections[i].offsetTop <= mid) {
+            chIdx = parseInt(sections[i].getAttribute("data-ch")) || 0;
+            break;
+          }
+        }
+        fireRelocated(doc);
+      }, { passive: true });
+    }
+
+    // ── PAGINATED MODE: load one chapter at a time ──
+
+    async function loadChapter(idx, startFrac) {
+      await book.ready;
+      if (!book._chapters.length) return;
+
+      revokeBlobUrls();
+
+      idx   = Math.max(0, Math.min(idx, book._chapters.length - 1));
+      chIdx = idx;
+      page  = 0;
+
+      var ch  = book._chapters[idx];
+      var raw = "";
+      try { raw = await book._zip.file(ch.path).async("text"); }
+      catch (e) { raw = "<html><body><p>Could not load this chapter.</p></body></html>"; }
+
+      var chDir = ch.path.includes("/")
+        ? ch.path.slice(0, ch.path.lastIndexOf("/") + 1) : book._dir;
+
+      var bookCss    = await extractBookCss(raw, chDir);
+      var bodyContent = await processRawChapter(raw, chDir);
 
       var viewW = iframe.clientWidth  || wrap.clientWidth  || window.innerWidth;
       var viewH = iframe.clientHeight || wrap.clientHeight || window.innerHeight;
@@ -335,26 +410,24 @@
       doc.write(buildPageHtml(bodyContent, bookCss, viewW, viewH));
       doc.close();
 
-      // wait for layout before measuring columns or restoring scroll
       await new Promise(function (r) { requestAnimationFrame(function () { setTimeout(r, 80); }); });
 
-      if (!scrollMode) {
-        recalcPages(doc, viewW);
-        if (startFrac > 0) {
-          page = Math.min(Math.round(startFrac * (pageCount - 1)), pageCount - 1);
-        }
-        jumpToPage(doc, page, viewW);
-      } else if (startFrac > 0) {
-        var el = doc.documentElement;
-        el.scrollTop = startFrac * Math.max(1, el.scrollHeight - el.clientHeight);
+      recalcPages(doc, viewW);
+      if (startFrac > 0) {
+        page = Math.min(Math.round(startFrac * (pageCount - 1)), pageCount - 1);
       }
+      jumpToPage(doc, page, viewW);
 
-      reapplyHighlights(idx, doc); // FIX 3
+      reapplyHighlights(idx, doc);
 
       var view = { document: doc, window: iframe.contentWindow };
       listeners.rendered.forEach(function (fn) { fn({ index: idx }, view); });
 
-      // fire selected when user releases a text selection in the iframe
+      attachSelectionListener(doc);
+      fireRelocated(doc);
+    }
+
+    function attachSelectionListener(doc) {
       function onSelectionEnd() {
         var sel  = doc.getSelection();
         var text = sel ? sel.toString().trim() : "";
@@ -367,8 +440,6 @@
       }
       doc.addEventListener("mouseup",  onSelectionEnd);
       doc.addEventListener("touchend", onSelectionEnd, { passive: true });
-
-      fireRelocated(doc);
     }
 
     // ── FIX 1 — column-based pagination ──
@@ -477,11 +548,39 @@
 
       flow: function (mode) {
         scrollMode = (mode === "scrolled-doc");
-        if (book._chapters.length) loadChapter(chIdx, 0);
+        if (!book._chapters.length) return;
+        if (scrollMode) {
+          var frac = getScrollFrac(iDoc());
+          loadAllChapters(frac);
+        } else {
+          loadChapter(chIdx, 0);
+        }
       },
 
       display: function (cfi) {
         return book.ready.then(function () {
+          if (scrollMode) {
+            var pos  = decodeCfi(cfi);
+            var frac = pos ? pos.frac : 0;
+            if (!pos && cfi) {
+              var ti = book._chapters.findIndex(function (c) {
+                return c.href === cfi || c.path.endsWith(cfi) || cfi.endsWith(c.href);
+              });
+              if (ti > 0) frac = ti / book._chapters.length;
+            }
+            return loadAllChapters(frac).then(function () {
+              if (!pos && cfi) {
+                var doc = iDoc();
+                var si  = book._chapters.findIndex(function (c) {
+                  return c.href === cfi || c.path.endsWith(cfi) || cfi.endsWith(c.href);
+                });
+                if (si >= 0 && doc) {
+                  var section = doc.getElementById("ch-" + si);
+                  if (section) section.scrollIntoView();
+                }
+              }
+            });
+          }
           if (!cfi) return loadChapter(0, 0);
           var pos = decodeCfi(cfi);
           if (pos) return loadChapter(Math.min(pos.idx, book._chapters.length - 1), pos.frac);
@@ -495,7 +594,11 @@
       next: function () {
         var doc   = iDoc();
         var viewW = iframe.clientWidth || window.innerWidth;
-        if (!scrollMode && page < pageCount - 1) {
+        var viewH = iframe.clientHeight || window.innerHeight;
+        if (scrollMode) {
+          doc.documentElement.scrollTop += viewH * 0.9;
+          fireRelocated(doc);
+        } else if (page < pageCount - 1) {
           page++;
           jumpToPage(doc, page, viewW);
           fireRelocated(doc);
@@ -507,12 +610,16 @@
       prev: function () {
         var doc   = iDoc();
         var viewW = iframe.clientWidth || window.innerWidth;
-        if (!scrollMode && page > 0) {
+        var viewH = iframe.clientHeight || window.innerHeight;
+        if (scrollMode) {
+          doc.documentElement.scrollTop -= viewH * 0.9;
+          fireRelocated(doc);
+        } else if (page > 0) {
           page--;
           jumpToPage(doc, page, viewW);
           fireRelocated(doc);
         } else if (chIdx > 0) {
-          loadChapter(chIdx - 1, scrollMode ? 0 : 1);
+          loadChapter(chIdx - 1, 1);
         }
       },
 
