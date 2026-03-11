@@ -30,19 +30,22 @@ export async function saveBook(file) {
     if (titleEl && titleEl.textContent.trim()) title = titleEl.textContent.trim();
 
     let coverHref = null;
-
+// cover extraction try 1 for EPUB2s. will look for metatag with <meta[name='cover']> tag
     const coverMeta = opfDoc.querySelector("meta[name='cover']");
     if (coverMeta) {
       const coverId = coverMeta.getAttribute("content");
        const coverItem = opfDoc.querySelector("item[id='" + coverId + "']");
       if (coverItem) coverHref = coverItem.getAttribute("href"); 
-     }
+    }
 
+    // 2 looks for items with properties="cover-image" 
     if (!coverHref) {
       const propItem = opfDoc.querySelector("item[properties='cover-image']");
       if (propItem) coverHref = propItem.getAttribute("href");
     }
 
+
+    // 3 will use item whose id contains :cover: and is an image
     if (!coverHref) {
       const items = opfDoc.querySelectorAll("item");
       for (let i = 0; i < items.length; i++) {
@@ -50,12 +53,17 @@ export async function saveBook(file) {
         const mt = (items[i].getAttribute("media-type") || "").toLowerCase();
         if (id.includes("cover") && mt.startsWith("image/")) {
           coverHref = items[i].getAttribute("href");
-          break;}
-  }}
+          break;
+        }
+    }
+ }
 
+
+    //4 last resort. will just use firt image found or firt page. but ensures ther's a cover
     if (!coverHref) {
       const firstImg = opfDoc.querySelector("item[media-type^='image/']");
       if (firstImg) coverHref = firstImg.getAttribute("href");}
+
 
     if (coverHref) {
       const resolvePath = function(base, rel) {
@@ -105,8 +113,8 @@ export const getAllBooks = () => db.books.toArray( );
 export const deleteBook = id => db.books.delete(id);
 
 export async function updateBookTitle(id, newTitle) { 
-  await db.books.update(id, { title: newTitle });
-}
+  await db.books.update(id, { title: newTitle });}
 
 export async function updateBookCover(id, newCoverUrl) {  
-  await db.books.update(id, { coverUrl: newCoverUrl });}
+  await db.books.update(id, { coverUrl: newCoverUrl });
+}
