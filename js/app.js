@@ -200,7 +200,7 @@ function setStatus(msg, detail, pct) {
         })
         .filter(function(item) { return item.str.trim().length > 0; });
 
-      // descending Y (top of page first), then ascending X (left to right)
+      //top of page first then left to right so that reading order is preserved as much as possible
       items.sort(function(a, b) {
         var yDiff = b.y - a.y;
         //if items are on the same line sort by X
@@ -208,7 +208,7 @@ function setStatus(msg, detail, pct) {
         return yDiff;
       });
 
-      //group into lines by proximity
+      //group into lines based on Y coordinate. if Y is within half a line height it's the same line. should work decently for most books
       var lines = [];
       var currentLine = [];
       var lastY = null;
@@ -236,9 +236,8 @@ function setStatus(msg, detail, pct) {
 
     setStatus("Detecting chapters…", "", 62);
 
-function isPageNumber(line) {
-  return /^\d+$/.test(line.trim());
-}
+function isPageNumber(line) { 
+  return /^\d+$/.test(line.trim());}
 
 
     var chapters = findChapters(pages, totalPages);
@@ -277,7 +276,14 @@ function isPageNumber(line) {
   }
 }
 window.convertPDF = convertPDF;
-
+function isPageNumber(line) {
+  var t = line.trim();
+  // matches lone numbers, or "Page 3", or "- 3 -" style page markers
+  if (/^\d+$/.test(t)) return true;
+  if (/^page\s+\d+$/i.test(t)) return true;
+  if (/^[-–]\s*\d+\s*[-–]$/.test(t)) return true;
+  return false;
+}
 
 function findChapters(pages, totalPages) {
   

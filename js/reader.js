@@ -513,8 +513,36 @@ if (savedFont && fonts[savedFont]) {
         div.className = "search-result-item";
         div.textContent = result.excerpt;
         div.addEventListener("click", function() {
-          rendition.display(result.cfi);  
-        searchBar.style.display = "none";
+          rendition.display(result.cfi).then(function() {
+            // flash-highlight every instance of the search term on the page
+            rendition.getContents().forEach(function(c) {
+              var body = c.document.body;
+              var walker = c.document.createTreeWalker(body, NodeFilter.SHOW_TEXT, null, false);
+              var node;
+              var ranges = [];
+              while ((node = walker.nextNode())) {
+                var idx = node.textContent.toLowerCase().indexOf(query.toLowerCase());
+                if (idx === -1) continue;
+                var range = c.document.createRange();
+                range.setStart(node, idx);
+                range.setEnd(node, idx + query.length);
+                ranges.push(range);
+              }
+              ranges.forEach(function(range) {
+                var mark = c.document.createElement("mark");
+                mark.style.cssText = "background:#ff9f0a;color:inherit;border-radius:3px;transition:background 0.4s;";
+                range.surroundContents(mark);
+                setTimeout(function() {
+                  mark.style.background = "transparent";
+                  setTimeout(function() {
+                    var parent = mark.parentNode;
+                    if (parent) { parent.replaceChild(c.document.createTextNode(mark.textContent), mark); parent.normalize(); }
+                  }, 600);
+                }, 2000);
+              });
+            });
+          });
+          searchBar.style.display = "none";
           searchOpen = false;
           resetHideTimer();
         });
