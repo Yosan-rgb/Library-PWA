@@ -128,8 +128,8 @@ if (cfiLoc && epub.locations.length()) {
 }
     if (window.autoMarkDone) window.autoMarkDone(bookId, Math.round((pageNum / totalPages) * 100));
 
-    if (pageNum === totalPages && localStorage.getItem("finished_" + bookId) !== "true" && !localStorage.getItem("donePrompt_" + bookId)) {
-      localStorage.setItem("donePrompt_" + bookId, "true");
+  var overallPct = parseFloat(localStorage.getItem("progress_" + bookId) || "0") * 100;
+if (pageNum === totalPages && overallPct >= 88 && localStorage.getItem("finished_" + bookId) !== "true" && !localStorage.getItem("donePrompt_" + bookId)) {      localStorage.setItem("donePrompt_" + bookId, "true");
       setTimeout(function() {
         var doneToast = document.createElement("div");
         doneToast.innerHTML = '📖 Mark as done? <button onclick="localStorage.setItem(\'finished_\' + \'' + bookId + '\', \'true\'); this.parentElement.remove();" style="margin-left:10px;background:var(--accent);border:none;border-radius:8px;padding:4px 10px;font-weight:600;cursor:pointer;">Yes</button>';
@@ -324,8 +324,10 @@ var themeStyles = {
 rendition.getContents().forEach(function(c) {
   c.document.body.style.fontFamily = fonts[name];});
 localStorage.setItem("fontFamily_" + bookId, name);      var s = themeStyles[name];
-      document.body.style.background = s.bg;
-      document.getElementById("reader-header").style.background = s.headerBg;
+     document.body.style.background = s.bg;
+document.getElementById("reader-header").style.background = s.headerBg;
+var tcMeta = document.getElementById("theme-color-meta");
+if (tcMeta) tcMeta.setAttribute("content", s.bg);
       document.querySelectorAll("[id^='theme-']").forEach(function(b) {
         b.classList.toggle("active", b.id === "theme-" + name);
       });
@@ -334,9 +336,8 @@ localStorage.setItem("fontFamily_" + bookId, name);      var s = themeStyles[nam
 
   var savedTheme = localStorage.getItem("readerTheme_" + bookId) || "light";
 rendition.themes.select(savedTheme);
-var savedStyle = themeStyles[savedTheme];
-document.body.style.background = savedStyle.bg;
-document.getElementById("reader-header").style.background = savedStyle.headerBg;
+var tcMeta = document.getElementById("theme-color-meta");
+if (tcMeta) tcMeta.setAttribute("content", savedStyle.bg);
 document.querySelectorAll("[id^='theme-']").forEach(function(b) {
   b.classList.toggle("active", b.id === "theme-" + savedTheme);
 });
@@ -397,9 +398,10 @@ if (savedFont && fonts[savedFont]) {
         item.style.cssText = "display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:0.5px solid rgba(0,0,0,0.08);";
         var left = document.createElement("div");
         left.style.cursor = "pointer";
-      left.innerHTML = '<div style="font-size:15px;font-weight:500;">p. ' + (bm.page || bm.pct + '%') + '</div>
+  left.innerHTML = '<div style="font-size:15px;font-weight:500;">p. ' + (bm.page || bm.pct + '%') + '</div>';
         
-        left.addEventListener("click", function() { rendition.display(bm.cfi); panel.style.display = "none"; });
+        left.addEventListener("click", function() { rendition.display(bm.cfi); panel.style.display = "none"; });         left.addEventListener
+
         var removeBtn = document.createElement("button");
         removeBtn.textContent = "Remove";
         removeBtn.style.cssText = "background:none;border:none;color:#ff453a;font-size:13px;cursor:pointer;padding:4px 8px;width:auto;";
