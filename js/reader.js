@@ -398,9 +398,10 @@ if (savedFont && fonts[savedFont]) {
         item.style.cssText = "display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:0.5px solid rgba(0,0,0,0.08);";
         var left = document.createElement("div");
         left.style.cursor = "pointer";
-  left.innerHTML = '<div style="font-size:15px;font-weight:500;">p. ' + (bm.page || bm.pct + '%') + '</div>';
-        
-        left.addEventListener("click", function() { rendition.display(bm.cfi); panel.style.display = "none"; });         left.addEventListener
+
+    left.innerHTML = '<div style="font-size:15px;font-weight:500;">p. ' + (bm.page || bm.pct + '%') + '</div>';
+        left.addEventListener("click", function() { rendition.display(bm.cfi); panel.style.display = "none"; });
+
 
         var removeBtn = document.createElement("button");
         removeBtn.textContent = "Remove";

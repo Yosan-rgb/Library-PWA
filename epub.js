@@ -214,6 +214,7 @@
     var page       = 0;
     var pageCount  = 1;
     var scrollMode = options.flow === "scrolled-doc";
+    var scrollPageCount = 1;
 
     // appearance — layered as overrides on top of the book's own CSS
     var fontSize   = 100;
@@ -342,9 +343,11 @@
       doc.write(buildPageHtml(allSections.join("\n"), allCss, viewW, viewH));
       doc.close();
 
-      await new Promise(function (r) { requestAnimationFrame(function () { setTimeout(r, 80); }); });
+    await new Promise(function (r) { requestAnimationFrame(function () { setTimeout(r, 80); }); });
 
-      // restore scroll position
+      // calculate total pages for whole book once, never resets
+      var docEl = doc.documentElement;
+      scrollPageCount = Math.max(1, Math.ceil(docEl.scrollHeight / viewH));
       if (startFrac > 0) {
         var el = doc.documentElement;
         el.scrollTop = startFrac * Math.max(1, el.scrollHeight - el.clientHeight);
@@ -366,9 +369,17 @@
     // track which chapter the user is currently reading based on scroll position
     function attachScrollListener(doc) {
       doc.addEventListener("scroll", function () {
-        // find which section is most visible
+        var el        = doc.documentElement;
+        var viewH     = iframe.clientHeight || window.innerHeight;
+        var scrollTop = el.scrollTop;
+
+        // global page number — climbs from 1 to scrollPageCount, never resets
+        page      = Math.floor(scrollTop / viewH);
+        pageCount = scrollPageCount;
+
+        // still track which chapter we're in for CFI saving
         var sections = doc.querySelectorAll("section[data-ch]");
-        var mid = doc.documentElement.scrollTop + (iframe.clientHeight / 2);
+        var mid = scrollTop + (viewH / 2);
         for (var i = sections.length - 1; i >= 0; i--) {
           if (sections[i].offsetTop <= mid) {
             chIdx = parseInt(sections[i].getAttribute("data-ch")) || 0;
@@ -522,12 +533,22 @@
       return el.scrollTop / max;
     }
 
-    function fireRelocated(doc) {
-      var frac = scrollMode
-        ? getScrollFrac(doc || iDoc())
-        : page / Math.max(1, pageCount - 1);
+  function fireRelocated(doc) {
+      var el   = (doc || iDoc()) && (doc || iDoc()).documentElement;
+      var viewH = iframe.clientHeight || window.innerHeight;
+      var frac, displayPage, displayTotal;
+      if (scrollMode) {
+        var scrollTop = el ? el.scrollTop : 0;
+        frac         = el ? scrollTop / Math.max(1, el.scrollHeight - el.clientHeight) : 0;
+        displayPage  = Math.max(1, Math.floor(scrollTop / viewH) + 1);
+        displayTotal = scrollPageCount;
+      } else {
+        frac         = page / Math.max(1, pageCount - 1);
+        displayPage  = page + 1;
+        displayTotal = pageCount;
+      }
       listeners.relocated.forEach(function (fn) {
-        fn({ start: { cfi: encodeCfi(chIdx, frac), displayed: { page: page + 1, total: pageCount } } });
+        fn({ start: { cfi: encodeCfi(chIdx, frac), displayed: { page: displayPage, total: displayTotal } } });
       });
     }
 
@@ -623,6 +644,29 @@
         }
       },
 
+      currentLocation: function () {
+        var doc   = iDoc();
+        var el    = doc && doc.documentElement;
+        var viewH = iframe.clientHeight || window.innerHeight;
+        var frac, displayPage, displayTotal;
+        if (scrollMode) {
+          var scrollTop = el ? el.scrollTop : 0;
+          frac         = el ? scrollTop / Math.max(1, el.scrollHeight - el.clientHeight) : 0;
+          displayPage  = Math.max(1, Math.floor(scrollTop / viewH) + 1);
+          displayTotal = scrollPageCount;
+        } else {
+          frac         = page / Math.max(1, pageCount - 1);
+          displayPage  = page + 1;
+          displayTotal = pageCount;
+        }
+        return {
+          start: {
+            cfi:       encodeCfi(chIdx, frac),
+            displayed: { page: displayPage, total: displayTotal }
+          }
+        };
+      },
+      
       currentLocation: function () {
         var doc  = iDoc();
         var frac = scrollMode
