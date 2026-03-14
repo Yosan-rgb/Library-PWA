@@ -203,14 +203,24 @@ if (pageNum === totalPages && overallPct >= 88 && localStorage.getItem("finished
 });
 
    
-  document.addEventListener("keydown", function(e) {
-    if (e.key === "ArrowRight") { rendition.next(); showUI(); }
-    if (e.key === "ArrowLeft") { rendition.prev(); showUI(); }
-  });
+ document.addEventListener("click", function(e) {
+  if (e.target.closest("button, input, a, #settings-panel, #bookmarks-panel, #highlights-panel, #search-bar, .toc-panel")) return;
+  var third = window.innerWidth / 3;
+  if (e.clientX < third) { rendition.prev(); showUI(); }
+  else if (e.clientX > third * 2) { rendition.next(); showUI(); }
+  else { if (uiVisible) hideUI(); else showUI(); }
+ } );
 
   document.getElementById("prev-btn").addEventListener("click", function() { rendition.prev(); showUI(); });
   document.getElementById("next-btn").addEventListener("click", function() { rendition.next(); showUI(); });
-  // Bookmark 
+  
+  
+document.getElementById("tap-left").addEventListener("click", function() { rendition.prev(); showUI(); });
+document.getElementById("tap-right").addEventListener("click", function() { rendition.next(); showUI(); });
+document.getElementById("tap-mid").addEventListener("click", function() {
+  if (uiVisible) hideUI(); else showUI();
+});
+
   function updateBookmarkIcon() {
     var loc = rendition.currentLocation();
     var cfi = loc && loc.start && loc.start.cfi;
