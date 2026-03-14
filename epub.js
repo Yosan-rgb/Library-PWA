@@ -34,6 +34,8 @@
   //finds a string in the iframe document and wraps it in a <mark>. used to re-apply highlights when a chapter reloads
   function highlightText(doc, text) {
     if (!text || !text.trim()) return null;
+
+    ///https://developer.mozilla.org/en-US/docs/Web/API/TreeWalker
     var walker = doc.createTreeWalker(doc.body, NodeFilter.SHOW_TEXT, null, false);
     var node;
     var lower = text.toLowerCase();
@@ -399,7 +401,11 @@
           "html,body{margin:0;padding:0;height:auto;overflow-x:hidden;background:" + bgColor + ";}" +
           "#rdr-wrap{padding:20px 24px;box-sizing:border-box;line-height:1.75;background:" + bgColor + ";color:" + textColor + ";}";
       } else {
-        var contentW = viewW - 56;
+
+        
+  // https://developer.mozilla.org/en-US/docs/Web/CSS/columns
+  var contentW = viewW - 56;
+        
         layoutCss =
           "html,body{margin:0;padding:0;width:" + viewW + "px;height:" + viewH + "px;overflow:hidden;background:" + bgColor + ";}" +
           "#rdr-wrap{" +

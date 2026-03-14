@@ -60,13 +60,13 @@ color:var(--text-secondary); margin-bottom:12px;">CONTINUE READING</p>
 <section id="library-tab" class="fade-in" style="display:none;">
   <h2>Library</h2>
   <p>Your collection</p>
-  <ul id="libraryList" class="ios-group"></ul>
+  <ul id="libraryList"></ul>
   <!-- <input type="text" id="searchBar" placeholder="search library"> -->
 
 <!-- epub upload. accepts .epub only, pdf goes through converter instead -->
   <input type="file" id="epubUpload" accept=".epub" style="display:none;">
 
-  <button onclick="document.getElementById('epubUpload').click()">add a book</button></section>
+  <button type="button" onclick="document.getElementById('epubUpload').click()">add a book</button></section>
 
       <section id="conversion-tab" class="fade-in" style="display:none;">
         <h2>Convert PDF</h2>
@@ -202,6 +202,20 @@ color:var(--text-secondary); margin-bottom:12px;">CONTINUE READING</p>
 <link rel="apple-touch-icon" sizes="512x512" href="icons/icon-512.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
+
+<style>
+  button[type="button"] {
+    width: 100%;
+    padding: 14px;
+    background: var(--accent);
+    color: #1a1a1a;
+    border: none;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;  }
+</style>
 
 </body>
 </html>
