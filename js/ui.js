@@ -11,7 +11,7 @@ export async function refreshLibrary() {
   const books = await getAllBooks();
 
   if (books.length === 0) {
-    list.innerHTML = '<li style="grid-column:1/-1;text-align:center;color:var(--text-secondary);font-size:15px;padding:32px 16px;background:var(--card-bg);border-radius:12px;list-style:none;">No books yyet :( add upload EPUB below!</li>';
+    list.innerHTML = '<li style="grid-column:1/-1;text-align:center;color:var(--text-secondary);font-size:15px;padding:32px 16px;background:var(--card-bg);border-radius:12px;list-style:none;">No books yet :( add upload EPUB below!</li>';
     return;
   }
 
