@@ -336,7 +336,7 @@ if (tcMeta) tcMeta.setAttribute("content", s.bg);
   var savedTheme = localStorage.getItem("readerTheme_" + bookId) || "light";
 rendition.themes.select(savedTheme);
 var tcMeta = document.getElementById("theme-color-meta");
-if (tcMeta) tcMeta.setAttribute("content", savedStyle.bg);
+if (tcMeta) tcMeta.setAttribute("content", themeStyles[savedTheme].bg);
 document.querySelectorAll("[id^='theme-']").forEach(function(b) {
   b.classList.toggle("active", b.id === "theme-" + savedTheme);
 } );

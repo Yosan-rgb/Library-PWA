@@ -30,7 +30,8 @@ export async function saveBook(file) {
     if (titleEl && titleEl.textContent.trim()) title = titleEl.textContent.trim();
 
     let coverHref = null;
-// cover extraction try 1 for EPUB2s. will look for metatag with <meta[name='cover']> tag
+//cover extraction try 1 for EPUB2s. will look for metatag with <meta[name='cover']> tag
+//https://www.w3.org/TR/epub-33/#sec-opf-dcmes-optional-def
     const coverMeta = opfDoc.querySelector("meta[name='cover']");
     if (coverMeta) {
       const coverId = coverMeta.getAttribute("content");
@@ -45,11 +46,22 @@ export async function saveBook(file) {
      }
 
 
-  // just use the first image if still nothing
-    if (!coverHref) {
-      const anyImg = opfDoc.querySelector("item[media-type^='image/']");
-      if (anyImg) coverHref = anyImg.getAttribute("href");
-    }
+  //just use the first image if still nothing
+if (!coverHref) {
+  const items = opfDoc.querySelectorAll("item");
+  for (let i = 0; i < items.length; i++) {
+    const id = (items[i].getAttribute("id") || "").toLowerCase();
+    const mt = (items[i].getAttribute("media-type") || "").toLowerCase();
+    if (id.includes("cover") && mt.startsWith("image/")) {
+      coverHref = items[i].getAttribute("href");
+      break;
+    } }}
+
+      //final fallback
+      if (!coverHref) {
+  const anyImg = opfDoc.querySelector("item[media-type^='image/']");
+  if (anyImg) coverHref = anyImg.getAttribute("href");}
+
 
     if (coverHref) {
       const resolvePath = function(base, rel) {
@@ -77,8 +89,10 @@ export async function saveBook(file) {
     }
   } catch (e) {
     console.warn("Cover/metadata extraction failed:", e.message);
-  }
+   } 
 
+
+//https://developer.mozilla.org/en-US/docs/Web/API/Blob/slice
   const book = {
     id: crypto.randomUUID( ),
     title,
@@ -87,15 +101,14 @@ export async function saveBook(file) {
     addedAt: Date.now()  };
 
   await db.books.add(book);   
-  return book;
-}
+  return book;  }
 
 export const getAllBooks = () => db.books.toArray( ); 
- export const getBookById = id => db.books.get(id);
+  export const getBookById = id => db.books.get(id);
 export const deleteBook = id => db.books.delete(id);
 
 export async function updateBookTitle(id, newTitle) { 
-  await db.books.update(id, { title: newTitle });}
+   await db.books.update(id, { title: newTitle });}
 
 export async function updateBookCover(id, newCoverUrl) {  
   await db.books.update(id, { coverUrl: newCoverUrl });

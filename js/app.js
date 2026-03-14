@@ -408,6 +408,14 @@ function isHeading(line) {
         }).join("\n")
   };});}
 
+  function resetConversion() {
+  document.getElementById("conversion-idle").style.display = "block";
+  document.getElementById("conversion-progress").style.display = "none";
+  document.getElementById("conversion-done").style.display = "none";
+  document.getElementById("pdfFileInput").value = "";
+}
+window.resetConversion = resetConversion;
+
 async function makeEpub(title, chapters) {
   //mimetype has to be STORE not DEFLATE!!!
   var zip = new JSZip();
