@@ -552,8 +552,8 @@ form button:active {
 .book-menu-row.danger {
   color: #ff453a; }
 
-  /* TOC panel */
-.toc-panel { position: fixed; inset: 0; z-index: 400; }
+
+  .toc-panel { position: fixed; inset: 0; z-index: 400; }
 .toc-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.35); }
 .toc-drawer {
   position: fixed; bottom: 0; left: 0; right: 0;
@@ -577,7 +577,7 @@ form button:active {
 }
 .toc-row:active { background: rgba(0,0,0,0.05); }
 
-/* Bookmark panel items */
+
 .bookmark-item {
   display: flex; align-items: center; justify-content: space-between;
   padding: 14px 20px;
@@ -590,7 +590,7 @@ form button:active {
   font-size: 13px; color: #ff453a; cursor: pointer; width: auto;
 }
 
-/* Highlight panel items */
+
 .highlight-item {
   display: flex; align-items: flex-start; justify-content: space-between;
   padding: 14px 20px;
@@ -610,7 +610,9 @@ form button:active {
   padding: 0; width: auto; flex-shrink: 0;
 }
 
-/* Search result items */
+
+
+
 .search-result-item {
   padding: 10px 12px; font-size: 13px; color: var(--text-color, #000);
   border-bottom: 0.5px solid rgba(0,0,0,0.08); cursor: pointer;
@@ -618,7 +620,6 @@ form button:active {
 }
 .search-result-item:active { background: var(--border-color); }
 
-/* Toast notification */
 #toast {
   position: fixed; bottom: 100px; left: 50%;
   transform: translateX(-50%);
@@ -629,3 +630,17 @@ form button:active {
   transition: opacity 0.3s ease;
   pointer-events: none;
 }
+
+.btn-primary {
+  width: 100%;
+  padding: 14px;
+  background: var(--accent);
+  color: #1a1a1a;
+  border: none;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  margin-top: 16px;
+  display: block;}

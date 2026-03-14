@@ -7,7 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no, viewport-fit=cover">
   <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" /> <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
- <!-- also loaded in epub.min.js but keeping here just in case --> <script src="js/epub.min.js"></script>
+ <!-- also loaded in epub.js but keeping here just in case --> <script src="js/epub.js"></script>
   
  <link rel="stylesheet" href="css.css">
   <style>
@@ -39,10 +39,7 @@
       pointer-events: none;
       transform: translateY(-100%);
     
-     }
-    .
-    
-    reader-header__back {
+     }.reader-header__back {
       background: none; border: none;
       color: var(--accent); font-size: 16px;
       font-weight: 500; cursor: pointer;
@@ -112,6 +109,18 @@
   flex-shrink: 0;
   min-width: 60px;
   text-align: center;
+}
+
+.reader-header__back {
+  background: none !important;
+  border: none !important;
+  color: var(--accent) !important;
+  font-size: 16px !important;
+  font-weight: 500 !important;
+  cursor: pointer !important;
+  padding: 0 !important;
+  width: auto !important;
+  outline: none !important;
 }
 
     
@@ -326,3 +335,5 @@
   <script type="module" src="js/reader.js"></script>
 </body>
 </html>
+
+

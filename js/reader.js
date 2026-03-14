@@ -52,8 +52,14 @@ document.addEventListener('touchstart', function() { showUI() }, {passive:true})
   trackRecentBook(bookId);
   document.getElementById("book-title").textContent = book.title;
 
-  var arrayBuffer = await book.data.arrayBuffer();
-  var epub = ePub(arrayBuffer);
+var arrayBuffer;
+if (book.data instanceof Blob) {
+  arrayBuffer = await book.data.arrayBuffer();
+} else if (book.data instanceof ArrayBuffer) {
+  arrayBuffer = book.data;
+} else {
+  alert("Book format error."); return;
+}  var epub = ePub(arrayBuffer);
    console.log("epub created:", epub);
   var viewerEl = document.getElementById("viewer");
 
