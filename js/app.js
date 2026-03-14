@@ -410,7 +410,7 @@ function isHeading(line) {
 
   function resetConversion() {
   document.getElementById("conversion-idle").style.display = "block";
-  document.getElementById("conversion-progress").style.display = "none";
+    document.getElementById("conversion-progress").style.display = "none";
   document.getElementById("conversion-done").style.display = "none";
   document.getElementById("pdfFileInput").value = "";
 }
@@ -512,21 +512,29 @@ document.addEventListener("DOMContentLoaded", async function() {
   var darkMode = localStorage.getItem("darkMode");
 
   if (darkMode === "enabled") document.body.classList.add("dark-theme");
+var meta = document.querySelector("meta[name='theme-color']");
+if (meta) meta.setAttribute("content", darkMode === "enabled" ? "#1c1c1e" : "#f2f2f7");
+
   var toggleBtn = document.getElementById("dark-mode-toggle");
   if (toggleBtn) {
     toggleBtn.textContent = darkMode === "enabled" ? "Light Mode" : "Dark Mode";
+    
     toggleBtn.addEventListener("click", function() {
-    var isDark = document.body.classList.toggle("dark-theme"); localStorage.setItem("darkMode", isDark ? "enabled" : "disabled");
-  toggleBtn.textContent = isDark ? "Light Mode" : "Dark Mode";
+      var isDark = document.body.classList.toggle("dark-theme");
+      localStorage.setItem("darkMode", isDark ? "enabled" : "disabled");
+      toggleBtn.textContent = isDark ? "Light Mode" : "Dark Mode";
+      var meta = document.querySelector("meta[name='theme-color']");
+      if (meta) meta.setAttribute("content", isDark ? "#1c1c1e" : "#f2f2f7");
     });
   }
   document.getElementById("pdfFileInput").addEventListener("change", function() {
-  if (this.files[0]) convertPDF();});  
-
-document.getElementById("epubUpload").addEventListener("change", function() {
-  if (this.files[0]) addToLibrary();
+    if (this.files[0]) convertPDF();
   });
-window.loadHomePage = loadHomePage;
-await loadHomePage();
- await setupUI();
-});
+
+  document.getElementById("epubUpload").addEventListener("change", function() {
+    if (this.files[0]) addToLibrary();
+  });
+  window.loadHomePage = loadHomePage;
+  await loadHomePage();
+  await setupUI();
+} );

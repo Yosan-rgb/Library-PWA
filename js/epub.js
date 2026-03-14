@@ -202,13 +202,12 @@
     }
 
     function buildIframe() {
-      if (iframe) iframe.remove();
-      iframe = document.createElement("iframe");
-      iframe.setAttribute("sandbox", "allow-same-origin allow-scripts");
-      iframe.style.cssText = "position:absolute;inset:0;width:100%;height:100%;border:none;background:" + bgColor + ";";
-      wrap.style.position = "relative";
-      wrap.appendChild(iframe);
-    }
+  if (iframe) iframe.remove();
+  iframe = document.createElement("iframe");
+  iframe.setAttribute("sandbox", "allow-same-origin allow-scripts");
+  iframe.style.cssText = "position:fixed;inset:0;width:100%;height:100%;border:none;background:" + bgColor + ";z-index:0;";
+  wrap.appendChild(iframe);
+}
 
     function iDoc() {
       return iframe && (iframe.contentDocument || iframe.contentWindow.document);
@@ -281,8 +280,8 @@
         sections.push('<section id="ch-' + i + '" data-ch="' + i + '">' + bodyHtml + '</section>');
       }
 
-      var viewW = iframe.clientWidth || wrap.clientWidth || window.innerWidth;
-      var viewH = iframe.clientHeight || wrap.clientHeight || window.innerHeight;
+      var viewW = window.innerWidth;
+      var viewH = window.innerHeight;
 
       var doc = iDoc();
       doc.open();
@@ -311,25 +310,27 @@
       fireRelocated(doc); }
 
     function trackScroll(doc) {
-      doc.addEventListener("scroll", function() {
-        var el = doc.documentElement;
-        var viewH = iframe.clientHeight || window.innerHeight;
-        var scrollTop = el.scrollTop;
+  doc.addEventListener("scroll", function() {
+    var el = doc.documentElement;
+    var viewH = window.innerHeight;
+    var scrollTop = el.scrollTop;
+    var scrollHeight = el.scrollHeight;
 
-        page = Math.floor(scrollTop / viewH);
-        pageCount = scrollPageCount;
+    page = Math.floor(scrollTop / viewH);
+    scrollPageCount = Math.max(1, Math.ceil(scrollHeight / viewH));
+    pageCount = scrollPageCount;
 
-        var sections = doc.querySelectorAll("section[data-ch]");
-        var mid = scrollTop + viewH / 2;
-        for (var i = sections.length - 1; i >= 0; i--) {
-          if (sections[i].offsetTop <= mid) {
-            chIdx = parseInt(sections[i].getAttribute("data-ch")) || 0;
-            break;
-          }
-        }
-        fireRelocated(doc);
-      }, { passive: true });
-  }
+    var sections = doc.querySelectorAll("section[data-ch]");
+    var mid = scrollTop + viewH / 2;
+    for (var i = sections.length - 1; i >= 0; i--) {
+      if (sections[i].offsetTop <= mid) {
+        chIdx = parseInt(sections[i].getAttribute("data-ch")) || 0;
+        break;
+      }
+    }
+    fireRelocated(doc);
+  }, { passive: true });
+}
 
     async function loadCh(idx, startFrac) {
       await book.ready;
@@ -418,7 +419,7 @@
             "column-fill:auto;" +
             "-webkit-column-width:" + contentW + "px;" +
             "-webkit-column-fill:auto;" +
-            "overflow:hidden;" +
+            
             "line-height:1.75;" +
             "word-wrap:break-word;" +
             "will-change:transform;" +
@@ -433,15 +434,16 @@
     }
 
     function countPages(doc, viewW) {
-      var rw = doc.getElementById("rdr-wrap");
-      pageCount = rw ? Math.max(1, Math.round(rw.scrollWidth / viewW)) : 1;
-      }
+  var rw = doc.getElementById("rdr-wrap");
+  var w = window.innerWidth;
+  pageCount = rw ? Math.max(1, Math.round(rw.scrollWidth / w)) : 1;
+}
 
     function goToPage(doc, p, viewW) {
-      var w = viewW || iframe.clientWidth || window.innerWidth;
-      var rw = doc && doc.getElementById("rdr-wrap");
-      if (rw) rw.style.transform = "translateX(-" + (p * w) + "px)";
-    }
+  var w = window.innerWidth;
+  var rw = doc && doc.getElementById("rdr-wrap");
+  if (rw) rw.style.transform = "translateX(-" + (p * w) + "px)";
+}
 
     function getScrollFrac(doc) {
       var el = doc ? doc.documentElement : null;
@@ -449,25 +451,26 @@
       return el.scrollTop / Math.max(1, el.scrollHeight - el.clientHeight);}
 
     function fireRelocated(doc) {
-      var el = (doc || iDoc()) && (doc || iDoc()).documentElement;
-      var viewH = iframe.clientHeight || window.innerHeight;
-      var frac, displayPage, displayTotal;
+  var el = (doc || iDoc()) && (doc || iDoc()).documentElement;
+  var viewH = window.innerHeight;
+  var frac, displayPage, displayTotal;
 
-    if (scrollMode) {
-        var scrollTop = el ? el.scrollTop : 0;
-        frac = el ? scrollTop / Math.max(1, el.scrollHeight - el.clientHeight) : 0;
-        displayPage = Math.max(1, Math.floor(scrollTop / viewH) + 1);
-        displayTotal = scrollPageCount;  
-      } else {
-        frac = page / Math.max(1, pageCount - 1);
-        displayPage = page + 1;
-        displayTotal = pageCount;
-      }
+  if (scrollMode) {
+    var scrollTop = el ? el.scrollTop : 0;
+    var scrollHeight = el ? el.scrollHeight : viewH;
+    frac = scrollTop / Math.max(1, scrollHeight - viewH);
+    displayPage = Math.max(1, Math.floor(scrollTop / viewH) + 1);
+    displayTotal = Math.max(1, Math.ceil(scrollHeight / viewH));
+  } else {
+    frac = page / Math.max(1, pageCount - 1);
+    displayPage = page + 1;
+    displayTotal = pageCount;
+  }
 
-      listeners.relocated.forEach(function(fn) {
-        fn({ start: { cfi: encodeCfi(chIdx, frac), displayed: { page: displayPage, total: displayTotal } } });
-      });
-    }
+  listeners.relocated.forEach(function(fn) {
+    fn({ start: { cfi: encodeCfi(chIdx, frac), displayed: { page: displayPage, total: displayTotal } } });
+  });
+}
 
     buildIframe();
     window.addEventListener("beforeunload", clearImgs);
