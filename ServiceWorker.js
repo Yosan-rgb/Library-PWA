@@ -16,7 +16,7 @@ var appFiles = [
   "./js/db.js",
   // 
   "https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js",
-  "https://unpkg.com/epubjs/dist/epub.min.js",
+  "./js/epub.min.js",
   "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js",
   "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js",
   "https://unpkg.com/dexie/dist/dexie.mjs"

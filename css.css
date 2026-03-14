@@ -6,56 +6,57 @@
   padding: 0;
 }
 
+/* spent way too long on these. kept having to add new ones every time i added something */
 :root {
+  --bg-color: #f2f2f7;
   --header-h: 44px;
   --tabbar-h: 83px;
-  --text-color: #000000;
-  --text-secondary: #6e6e73;
-  --card-bg: #ffffff;
-  --border-color: rgba(0,0,0,0.08);
-  --accent: #96e282; /*dunja approved this green lol*/
+  --accent: #96e282; /* dunja picked this theme */
   --tab-on: #96e282;
   --tab-off: #8e8e93;
-  --ease: 0.2s ease;
+  --card-bg: #ffffff;
+  --text-color: #000000;
+  --text-secondary: #6e6e73;
+  --border-color: rgba(0,0,0,0.08);
+  --ease: 0.2s ease;}
 
-  --bg-color: #f2f2f7;
 
-}
-
-/* dark theme vars. dunja reads at night so this gets used a lot */
+/* dark mode - dunja reads at night so this'll get used a lot*/
+/*will override basically everything. first attempt looked terrible */
 body.dark-theme {
   --bg-color: #1c1c1e;
+  --card-bg: #2c2c2e;
   --text-color: #ffffff;
   --text-secondary: #8e8e93;
-  --card-bg: #2c2c2e;
   --border-color: rgba(255,255,255,0.08);
+  /* --accent stays the same in dark mode, tested it and it looked fine */
 }
 
+/* had to put both html AND body here because just body wasnt working. assited*/
 html, body {
   height: 100%;
-  overscroll-behavior: none;
-  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif;
   background: var(--bg-color);
   color: var(--text-color);
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif;
+  overscroll-behavior: none; 
   -webkit-font-smoothing: antialiased;
   transition: background 0.3s ease, color 0.3s ease;
 }
 
 .app-header {
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
+  top: 0; left: 0; right: 0;
   height: var(--header-h);
-  background: var(--bg-color);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border-bottom: 0.5px solid var(--border-color);
-  z-index: 1000;
   display: flex;
   align-items: center;
-  padding: 0 16px;
   gap: 8px;
+  padding: 0 16px;
+  z-index: 1000;
+  background: var(--bg-color);
+  /*blur effect - webkit prefix needed for safari */
+  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(20px);
+  border-bottom: 0.5px solid var(--border-color);
 }
 
 .app-header h1 {
@@ -81,15 +82,16 @@ html, body {
   background: var(--border-color);
 }
 
+/* this took ages to get right - content was going under the header and tab bar */
 .app-content {
+  padding: 20px 16px;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch; 
+
   margin-top: var(--header-h);
   margin-bottom: var(--tabbar-h);
-  overflow-y: auto;
   max-height: calc(100vh - var(--header-h) - var(--tabbar-h));
-  padding: 20px 16px;
-  -webkit-overflow-scrolling: touch;
 }
-
 section {
   margin-bottom: 32px;
   background: none;
@@ -101,10 +103,10 @@ section {
 section h2 {
   font-size: 28px;
   font-weight: 700;
-    letter-spacing: -0.6px;
   color: var(--text-color);
+
   margin-bottom: 4px;
-}
+  letter-spacing: -0.6px; }
 
 section p {
   font-size: 15px;
@@ -112,13 +114,15 @@ section p {
   margin-bottom: 20px;
 }
 
+/* 3 column grid like apple books. minmax(0, 1fr) stops overflow on small screens */
+/*first tried repeat(auto-fill, minmax(100px, 1fr)) first but the columns were inconsistent */
 #libraryList {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-gap: 16px 12px;
+  gap: 16px 12px;
   list-style: none;
-  padding: 0;
   margin: 0 0 20px 0;
+  padding: 0;
   width: 100%;
   align-items: start;
 }
@@ -134,19 +138,21 @@ gap: 16px 12px;
   display: none;
 }
 
+/* font-size 16px is important here - below that ios zooms in on focus which is annoying */
 input[type="text"],
 input[type="file"] {
   width: 100%;
   padding: 13px 16px;
   font-size: 16px;
   font-family: inherit;
-  margin-bottom: 12px;
-  border-radius: 12px;
   border: none;
+  border-radius: 12px;
   background: var(--card-bg);
   color: var(--text-color);
   box-shadow: 0 0 0 0.5px var(--border-color);
-  transition: box-shadow var(--ease);-webkit-appearance: none;
+  margin-bottom: 12px;
+  -webkit-appearance: none;
+  transition: box-shadow var(--ease);
 }
 
 input:focus {
@@ -154,43 +160,45 @@ input:focus {
   box-shadow: 0 0 0 2px var(--accent);
 }
 
-button[type="submit"],
+/*list of all three selectors because plain "button" was too broad
+and was styling the tab bar buttons too */
+ button[type="submit"],
 button[type="button"],
 form button {
   width: 100%;
   padding: 14px;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 12px;
   font-size: 16px;
   font-weight: 600;
   font-family: inherit;
-  border-radius: 12px;
-  border: none;
-  background: var(--accent);
-  color: #fff;
   cursor: pointer;
-  transition: opacity var(--ease), transform var(--ease);
   -webkit-appearance: none;
+  transition: opacity var(--ease), transform var(--ease);
 }
-
 button[type="submit"]:active,
 form button:active {
   opacity: 0.8;
   transform: scale(0.98);}
 
+/* tab bar height is 83px to account for iphone home indicator at the bottom */
+/* 83 = roughly 49px bar + 34px safe area. eyeballed it tbh */
 .app-tab-bar {
   position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
+  bottom: 0; left: 0; right: 0;
   height: var(--tabbar-h);
-  background: var(--bg-color);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border-top: 0.5px solid var(--border-color);
-   z-index: 1000;
   display: flex;
   justify-content: space-around;
- align-items: flex-start;
-  padding-top: 10px;}
+  align-items: flex-start;
+  padding-top: 10px;
+  border-top: 0.5px solid var(--border-color);
+  background: var(--bg-color);
+  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(20px);
+  z-index: 1000;
+}
 
 .app-tab-bar button {
   background: none;
@@ -222,7 +230,7 @@ form button:active {
 .app-tab-bar button:nth-child(3)::before { content: "⇄";  }
 .app-tab-bar button:nth-child(4)::before { content: "?"; }
 /*make more subtle and iosy*/
-/*https://www.compart.com/en/unicode/U+25A4*/
+/*unicode icons from compart.com*/
 
 
 .ios-group {
@@ -267,18 +275,21 @@ form button:active {
 
 /* loading spinner shown during epub save and pdf conversion */
 
+/* loading spinner. only shows during epub save and pdf conversion */
 .spinner {
   width: 36px;
   height: 36px;
-  /*width: 40px; heigh: 40px; */
+  /* tried 40px but it looked too big on iphone se */
+  /*width: 40px; height: 40px; */
+  border-radius: 50%;
   border: 3px solid rgba(255,255,255,0.2);
   border-top-color: #fff;
-  border-radius: 50%; /*check circle*/
-  animation: spin 0.8s linear infinite;
-}
+  animation: spin 0.8s linear infinite; }
 
 @keyframes spin {
-to { transform: rotate(360deg); }}
+  0% { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+  }
 
 
 /*new help Section. reused card style */
@@ -299,10 +310,13 @@ to { transform: rotate(360deg); }}
 }
 
 .help-card h3 {
-  font-size: 15px; font-weight: 600;
+  font-size: 15px;
+  font-weight: 600;
   color: var(--text-color);
-    margin-bottom: 10px;
-  letter-spacing: normal;}
+  margin-bottom: 10px;
+  /*=reset letter space here because  h2 was also being affected  */
+  letter-spacing: normal;
+}
 
 .step-list {
    display: flex;
@@ -357,13 +371,18 @@ to { transform: rotate(360deg); }}
   border-bottom: none;
 }
 
+
 .faq-item summary {
-  padding: 15px 16px;
-  font-size: 15px; font-weight: 500;
-  color: var(--text-color); cursor: pointer;
   list-style: none;
   display: flex;
-  justify-content: space-between; align-items: center;}
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 16px;
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--text-color);
+  cursor: pointer;
+}
 
 .faq-item summary span {
   color: var(--text-secondary);
@@ -376,4 +395,88 @@ to { transform: rotate(360deg); }}
   font-size: 14px;
   color: var(--text-secondary);
   margin: 0;
+
+  /* recent books cards - home dashboard */
+.recent-book-card {
+  background: var(--card-bg);
+  border-radius: 14px;
+  padding: 14px 16px;
+  margin-bottom: 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  box-shadow: 0 0 0 0.5px var(--border-color);
+}
+.recent-book-thumb {
+  width: 42px;
+  height: 58px;
+  border-radius: 5px;
+  flex-shrink: 0;
+  background: linear-gradient(145deg,#3a3530,#2a2520);
+  box-shadow: 2px 2px 6px rgba(0,0,0,0.14);
+  overflow: hidden;
+}
+.recent-book-thumb img { width: 100%; height: 100%; object-fit: cover; }
+.recent-book-info { flex: 1; min-width: 0; }
+.recent-book-title {
+  font-size: 15px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.recent-book-pct {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin: 3px 0 10px;
+}
+.recent-book-bar-bg {
+  height: 3px;
+  background: var(--border-color);
+  border-radius: 99px;
+}
+.recent-book-bar-fill {
+  height: 100%;
+  background: var(--accent);
+  border-radius: 99px;
+}
+.recent-book-arrow {
+  color: var(--text-secondary);
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+
+.book-cover {
+  width: 100%;
+  aspect-ratio: 2/3;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 2px 4px 12px rgba(0,0,0,0.18);
+  margin-bottom: 6px;
+  position: relative;
+  background: linear-gradient(145deg,#3a3530,#2a2520);
+  }
+
+.book-cover img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.book-cover.finished img { opacity: 0.35; }
+.book-cover.no-cover.finished { opacity: 0.4; }
+.book-no-cover-label {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 10px;
+  opacity: 0.5;
+  }
+  
+.book-done-badge  {
+  position: absolute;
+  bottom: 6px;
+  left: 50%;
+  transform: translateX(-50%);
+  backgro
 }

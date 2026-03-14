@@ -3,12 +3,13 @@
 <head>
   <meta charset="utf-8">
   <title>Reader</title>
+  <meta name="theme-color" content="#ffffff" id="theme-color-meta">
   <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no, viewport-fit=cover">
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="default">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-  <script src="https://unpkg.com/epubjs/dist/epub.min.js"></script>
-  <link rel="stylesheet" href="css.css">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" /> <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+ <!-- also loaded in epub.min.js but keeping here just in case --> <script src="js/epub.min.js"></script>
+  
+ <link rel="stylesheet" href="css.css">
   <style>
     body {
       margin: 0;
@@ -30,19 +31,22 @@
       justify-content: space-between;
       padding: 0 16px;
       z-index: 100;
-      transition: opacity 0.35s ease, transform 0.35s ease;
-    }
+      transition: opacity 0.35s ease, transform 0.35s ease;}
+
+
     .reader-header.hidden {
       opacity: 0;
       pointer-events: none;
       transform: translateY(-100%);
-    }
-    .reader-header__back {
+    
+     }
+    .
+    
+    reader-header__back {
       background: none; border: none;
       color: var(--accent); font-size: 16px;
       font-weight: 500; cursor: pointer;
-      padding: 0; width: auto;
-    }
+      padding: 0; width: auto;}
    
     .reader-header__title {
       font-size: 14px; font-weight: 600;
@@ -90,7 +94,7 @@
       opacity: 0;
       pointer-events: none;
       transform: translateX(-50%) translateY(16px);
-    }
+     }
     .prev-btn, .next-btn {
       background: none; border: none;
       color: var(--accent); font-size: 20px;
@@ -144,8 +148,9 @@
       border-color: var(--accent);
     }
     .font-size-row {
-      display: flex; align-items: center; gap: 16px;
-    }
+      display: flex; align-items: center; gap: 16px;}
+
+
     .font-size-row button {
       background: #fff; border: 1px solid rgba(0,0,0,0.1);
       border-radius: 8px; color: #1a1a1a; font-size: 18px;
@@ -173,9 +178,11 @@
       background: #f2f2f7; color: #1a1a1a;
       font-size: 15px; margin-bottom: 0;
     }
+    
     #search-results {
       max-height: 200px; overflow-y: auto; margin-top: 8px;
     }
+
     .search-result-item {
       padding: 10px 12px; font-size: 13px; color: #1a1a1a;
       border-bottom: 0.5px solid rgba(0,0,0,0.08); cursor: pointer;
@@ -230,7 +237,9 @@
     <span class="reader-header__title" id="book-title"></span>
     <div class="reader-header__actions">
       <button id="search-btn" title="Search">⌕</button>
+      <!-- <button id="toc-btn">≡</button> tried a separate toc button here, moved it to settings -->
       <button id="bookmark-btn" title="Bookmark this page">🏷</button>
+      <!--<button id="share-btn">↑</button> -->
       <button id="settings-btn" title="More">⋯</button>
     </div>
   </div>
@@ -240,15 +249,19 @@
     <div id="search-results"></div>
   </div>
 
-<div id="viewer" style="position:fixed;top:0;bottom:0;left:0;right:0;"></div>
-
+<div id="viewer" style="position:fixed;top:0;bottom:0;left:0;right:0;z-index:0;"></div>
 
   <div class="reader-footer" id="reader-footer">
   <button class="prev-btn" id="prev-btn">‹</button>
-
+  <!-- <div id="progress-bar" style="flex:1;height:3px;background:#eee;border-radius:99px;">
+    <div id="progress-fill" style="height:100%;background:var(--accent);width:0%;border-radius:99px;"></div>
+  </div> -->
+  <!-- tried a progress bar here but it was too hard to read at small size -->
   <span class="reader-page-info" id="page-info">p. —</span>
   <button class="next-btn" id="next-btn">›</button>
 </div>
+  <div id="overlay-base"></div>
+<!-- base overlay layer - might use this later -->
 
   <div id="settings-panel">
     <div id="settings-overlay"></div>
@@ -270,7 +283,7 @@
         <span id="font-size-label">100%</span>
         <button id="font-increase">A+</button>
       </div>
-      <p class="settings-label">Font Style</p>
+      <p class="settings-label" style="margin-top:28px;">Font Style</p>
       <div class="settings-row">
         <button id="font-sans" class="toggle-btn active">Sans</button>
         <button id="font-serif" class="toggle-btn">Serif</button>
@@ -298,11 +311,18 @@
   <div id="highlights-panel">
     <div id="highlights-overlay"></div>
     <div id="highlights-drawer">
-      <div id="highlights-header">Highlights</div>
+      <div id="highlights-header">
+        <span>Highlights</span>
+        <!-- <button style="float:right;font-size:13px;">Clear all</button> -->
+      </div>
       <div id="highlights-list"></div>
     </div>
   </div>
 
+  <style>
+    /*fix for the footer overlapping content on older iphones */
+    .reader-footer { margin-bottom: env(safe-area-inset-bottom); }
+  </style>
   <script type="module" src="js/reader.js"></script>
 </body>
 </html>

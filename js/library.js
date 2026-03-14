@@ -1,7 +1,7 @@
 import { db } from "./db.js";
 
 export function libraryHealthCheck() {
-  console.log("library.js health check OK");}
+   console.log("library.js health check OK");}
 
 
 export async function saveBook(file) {
@@ -42,28 +42,14 @@ export async function saveBook(file) {
     if (!coverHref) {
       const propItem = opfDoc.querySelector("item[properties='cover-image']");
       if (propItem) coverHref = propItem.getAttribute("href");
-    }
+     }
 
 
-    // 3 will use item whose id contains :cover: and is an image
+  // just use the first image if still nothing
     if (!coverHref) {
-      const items = opfDoc.querySelectorAll("item");
-      for (let i = 0; i < items.length; i++) {
-        const id = (items[i].getAttribute("id") || "").toLowerCase();
-        const mt = (items[i].getAttribute("media-type") || "").toLowerCase();
-        if (id.includes("cover") && mt.startsWith("image/")) {
-          coverHref = items[i].getAttribute("href");
-          break;
-        }
+      const anyImg = opfDoc.querySelector("item[media-type^='image/']");
+      if (anyImg) coverHref = anyImg.getAttribute("href");
     }
- }
-
-
-    //4 last resort. will just use firt image found or firt page. but ensures ther's a cover
-    if (!coverHref) {
-      const firstImg = opfDoc.querySelector("item[media-type^='image/']");
-      if (firstImg) coverHref = firstImg.getAttribute("href");}
-
 
     if (coverHref) {
       const resolvePath = function(base, rel) {
@@ -79,11 +65,7 @@ export async function saveBook(file) {
       };
 
       const fullPath = resolvePath(opfDir, coverHref);
-      const attempts = [fullPath, coverHref, opfDir + coverHref ];
-      let coverFile = null;
-      for (let i = 0; i < attempts.length; i++) {
-        coverFile = zip.file(attempts[i]);
-        if (coverFile) break;}
+      const coverFile = zip.file(fullPath) || zip.file(coverHref);
 
       if (coverFile) {
         const blob = await coverFile.async("blob");

@@ -57,15 +57,12 @@ document.addEventListener('touchstart', function() { showUI() }, {passive:true})
    console.log("epub created:", epub);
   var viewerEl = document.getElementById("viewer");
 
-var rendition = epub.renderTo("viewer", {  
-  //var rendition = epub.renderTo(viewer". { flow "scrolled-doc"});
-  width: viewerEl.offsetWidth,
-height: viewerEl.offsetHeight,
-  flow: "paginated",
-  spread: "none",
-  allowScriptedContent: true,
-  allowPopups: true 
-});
+var rendition = epub.renderTo("viewer", {
+    width: viewerEl.offsetWidth,
+    height: viewerEl.offsetHeight,
+    flow: "paginated",
+    spread: "none"
+  });
 
 //remember last reading position, theme, font size, and mode for next opening
 var savedMode = localStorage.getItem("readingMode_" + bookId);
@@ -88,10 +85,12 @@ epub.ready.then(function() {
   });}) ;
 
 //only shows tip once per book to avoid annoying dunja
-setTimeout(function() {
-showToast("tip: select any text to highlight it");
-    localStorage.setItem("highlightHintSeen", "true");
-  }, 2000);
+if (!localStorage.getItem("highlightHintSeen")) {
+    setTimeout(function() {
+      showToast("tip: select any text to highlight it");
+      localStorage.setItem("highlightHintSeen", "true");
+    }, 2000);
+   }
 
 rendition.on("relocated", function(location) {
   var cfi = location.start.cfi;
@@ -102,9 +101,9 @@ rendition.on("relocated", function(location) {
   updateProgress(cfi);
   updateBookmarkIcon();});
 
-  rendition.on("rendered", function() {
-  console.log("Chapter rendered");
-} );
+    rendition.on("rendered", function() {
+    console.log("rendered");
+  });
 
 
 //page numbers beacasue progress bar isn't functioning 
@@ -143,13 +142,12 @@ if (pageNum === totalPages && overallPct >= 88 && localStorage.getItem("finished
 
   // fallback to spine position
   var spineItems = epub.spine.spineItems;
-  var spinePos = spineItems.findIndex(function(item) {
-    return cfi.indexOf(item.idref) !== -1;
-  });
-  if (spinePos !== -1) {
-    pageEl.textContent = (spinePos + 1) + " / " + spineItems.length;
-    localStorage.setItem("progress_" + bookId, (spinePos + 1) / spineItems.length);
-    if (window.autoMarkDone) window.autoMarkDone(bookId, Math.round(((spinePos + 1) / spineItems.length) * 100)); }}
+    var pos = spineItems.findIndex(function(item) { return cfi.indexOf(item.idref) !== -1; });
+    if (pos !== -1) {
+      pageEl.textContent = (pos + 1) + " / " + spineItems.length;
+      localStorage.setItem("progress_" + bookId, (pos + 1) / spineItems.length);
+    }
+  }
 
     rendition.on("rendered", function(section, view) {
   var iframeDoc = view.document;
@@ -165,6 +163,7 @@ if (pageNum === totalPages && overallPct >= 88 && localStorage.getItem("finished
     startTime = Date.now();
   }, { passive: true }); 
 
+  //https://developer.mozilla.org/en-US/docs/Web/API/Selection/toString
   iframeDoc.addEventListener("touchend", function(e) {
      if (iframeDoc.defaultView.getSelection().toString().trim()) return; 
 
@@ -314,14 +313,14 @@ var themeStyles = {
 
 
   Object.keys(themes).forEach(function(name) { rendition.themes.register(name, themes[name]); });
-  rendition.themes.select("light");
+  rendition.themes.select("light"); 
 
   ["light", "sepia", "dark"].forEach(function(name) {
     var btn = document.getElementById("theme-" + name);
     if (!btn) return;
     btn.addEventListener("click", function() {
       rendition.themes.select(name);
-rendition.getContents().forEach(function(c) {
+rendition.getContents().forEach(function(c) {  
   c.document.body.style.fontFamily = fonts[name];});
 localStorage.setItem("fontFamily_" + bookId, name);      var s = themeStyles[name];
      document.body.style.background = s.bg;
@@ -331,16 +330,16 @@ if (tcMeta) tcMeta.setAttribute("content", s.bg);
       document.querySelectorAll("[id^='theme-']").forEach(function(b) {
         b.classList.toggle("active", b.id === "theme-" + name);
       });
-    });
-  });
+    });   });
 
+  //https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage
   var savedTheme = localStorage.getItem("readerTheme_" + bookId) || "light";
 rendition.themes.select(savedTheme);
 var tcMeta = document.getElementById("theme-color-meta");
 if (tcMeta) tcMeta.setAttribute("content", savedStyle.bg);
 document.querySelectorAll("[id^='theme-']").forEach(function(b) {
   b.classList.toggle("active", b.id === "theme-" + savedTheme);
-});
+} );
 
 var savedFont = localStorage.getItem("fontFamily_" + bookId);
 if (savedFont && fonts[savedFont]) {
@@ -394,23 +393,23 @@ if (savedFont && fonts[savedFont]) {
       list.innerHTML = "<p style='padding:20px;color:#8e8e93;font-size:14px;text-align:center;'>No bookmarks yet.<br>Tap 🏷 to add one.</p>";
     } else {
       bms.forEach(function(bm, i)  {
+        
         var item = document.createElement("div");
-        item.style.cssText = "display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:0.5px solid rgba(0,0,0,0.08);";
+        item.className = "bookmark-item";
+
         var left = document.createElement("div");
-        left.style.cursor = "pointer";
-
-    left.innerHTML = '<div style="font-size:15px;font-weight:500;">p. ' + (bm.page || bm.pct + '%') + '</div>';
-        left.addEventListener("click", function() { rendition.display(bm.cfi); panel.style.display = "none"; });
-
+        left.className = "bookmark-page";
+        left.innerHTML = 'p. ' + (bm.page || bm.pct + "%");
 
         var removeBtn = document.createElement("button");
+        removeBtn.className = "bookmark-remove";
         removeBtn.textContent = "Remove";
-        removeBtn.style.cssText = "background:none;border:none;color:#ff453a;font-size:13px;cursor:pointer;padding:4px 8px;width:auto;";
-         removeBtn.addEventListener("click", function() {
+        
+        removeBtn.addEventListener("click", function() {
           var bms2 = getBookmarks(); bms2.splice(i, 1); saveBookmarks(bms2); item.remove(); updateBookmarkIcon();
         });
         item.appendChild(left); item.appendChild(removeBtn); list.appendChild(item);
-      });
+      } );
     }
     panel.style.display = "block";
   }
@@ -429,15 +428,19 @@ if (savedFont && fonts[savedFont]) {
        list.innerHTML = "<p style='padding:20px;color:#8e8e93;font-size:14px;text-align:center;'>No highlights yet.<br>Select text while reading to highlight.</p>";
     } else {
       hls.forEach(function(hl, i) {
+          
           var item = document.createElement("div");
-        item.style.cssText = "display:flex;align-items:flex-start;justify-content:space-between;padding:14px 20px;border-bottom:0.5px solid rgba(0,0,0,0.08);gap:12px;";
+        item.className = "highlight-item";
+
         var left = document.createElement("div");
-        left.style.cursor = "pointer";  
-        left.innerHTML = '<div style="font-size:14px;line-height:1.5;background:#ffe066;padding:4px 8px;border-radius:4px;margin-bottom:4px;">' + hl.text + '</div><div style="font-size:12px;color:#8e8e93;">' + new Date(hl.savedAt).toLocaleDateString(undefined, { month:"short", day:"numeric" }) + "</div>";
+        left.innerHTML = '<div class="highlight-text-block">' + hl.text + '</div>' +
+          '<div class="highlight-date">' + new Date(hl.savedAt).toLocaleDateString(undefined, { month:"short", day:"numeric" }) + '</div>';
         left.addEventListener("click", function() { rendition.display(hl.cfi); panel.style.display = "none"; });
-        var removeBtn = document.createElement("button");
-        removeBtn.textContent = "✕";
-        removeBtn.style.cssText = "background:none;border:none;color:#ff453a;font-size:16px;cursor:pointer;padding:0;width:auto;flex-shrink:0;";
+
+        var del = document.createElement("button");
+        del.className = "highlight-remove";
+        del.textContent = "✕";
+
         removeBtn.addEventListener("click", function() {
           var hls2 = getHighlights();
           rendition.annotations.remove(hl.cfi, "highlight");
@@ -459,20 +462,26 @@ if (savedFont && fonts[savedFont]) {
     var nav = await epub.loaded.navigation;
     var toc = nav.toc;
     if (!toc || !toc.length) { showToast("No table of contents found."); return; }
+    
     var panel = document.createElement("div");
-    panel.style.cssText = "position:fixed;inset:0;z-index:400;";
-    var overlay = document.createElement("div");
-    overlay.style.cssText = "position:absolute;inset:0;background:rgba(0,0,0,0.4);";
+    panel.className = "toc-panel";
+
+      var overlay = document.createElement("div");
+    overlay.className = "toc-overlay";
+
     var drawer = document.createElement("div");
-     drawer.style.cssText = "position:absolute;bottom:0;left:0;right:0;background:#f2f2f7;border-radius:20px 20px 0 0;max-height:75vh;overflow-y:auto;";
-    var hdr = document.createElement("div");
-    hdr.style.cssText = "padding:20px;border-bottom:0.5px solid rgba(0,0,0,0.08);font-size:17px;font-weight:600;position:sticky;top:0;background:#f2f2f7;";
+
+    drawer.className = "toc-drawer";
+
+     var hdr = document.createElement("div");
+    hdr.className = "toc-header";
     hdr.textContent = "Contents";
-    drawer.appendChild(hdr);
+
     toc.forEach(function(item) {
       var row = document.createElement("div");
-      row.style.cssText = "padding:14px 20px;border-bottom:0.5px solid rgba(0,0,0,0.08);font-size:15px;cursor:pointer;color:#1a1a1a;";
+      row.className = "toc-row";
       row.textContent = item.label.trim();
+
       row.addEventListener("click", function() { rendition.display(item.href); document.body.removeChild(panel); });
       drawer.appendChild(row);
      });
@@ -514,7 +523,10 @@ if (savedFont && fonts[savedFont]) {
         div.textContent = result.excerpt;
         div.addEventListener("click", function() {
           rendition.display(result.cfi).then(function() {
-            // flash-highlight every instance of the search term on the page
+
+          
+            //higlights searched word for a few secs after search - change made after final feedback
+            //https://developer.mozilla.org/en-US/docs/Web/API/Document/createTreeWalker
             rendition.getContents().forEach(function(c) {
               var body = c.document.body;
               var walker = c.document.createTreeWalker(body, NodeFilter.SHOW_TEXT, null, false);
@@ -539,9 +551,10 @@ if (savedFont && fonts[savedFont]) {
                     if (parent) { parent.replaceChild(c.document.createTextNode(mark.textContent), mark); parent.normalize(); }
                   }, 600);
                 }, 2000);
-              });
-            });
-          });
+              });}); });
+
+
+            
           searchBar.style.display = "none";
           searchOpen = false;
           resetHideTimer();
@@ -556,11 +569,11 @@ if (savedFont && fonts[savedFont]) {
   function showToast(msg) {  
      var toast = document.getElementById("toast");
     if (!toast) {
-      toast = document.createElement("div"); 
+      toast = document.createElement("div");
       toast.id = "toast";
-       toast.style.cssText = "position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.72);color:#fff;padding:8px 18px;border-radius:20px;font-size:14px;z-index:9999;transition:opacity 0.3s ease;pointer-events:none;white-space:nowrap;";
-      document.body.appendChild(toast);
-    }
+      document.body.appendChild(toast);}
+
+
     toast.textContent = msg;
     toast.style.opacity = "1";
      clearTimeout(toast._t);

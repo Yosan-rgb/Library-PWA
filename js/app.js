@@ -15,19 +15,19 @@ function showTab(id) {
     target.style.display = "block";
     void target.offsetWidth;
     target.classList.add("fade-in");
-  }
+  } 
 
   //higlight the right tab at the bottom (uses tapmap to match section IDs to tab button indexes)
   var tabMap = { "welcome-tab": 0, "library-tab": 1, "conversion-tab": 2, "help-tab": 3 };
   document.querySelectorAll(".app-tab-bar button").forEach(function(btn, i) {
     btn.classList.toggle("active", i === tabMap[id]);
-  });
+  }); 
 }
 window.showTab = showTab;
 window.showSection = showTab;
 
 
-//enter name prompt only called during first launch. backup loadHomepage()
+//enter name prompt only called during first launch. backup loadDashHomepage()
 function submitName() {
   var input = document.getElementById("usernameInput");   
  var name = input ? input.value.trim() : "";
@@ -35,8 +35,9 @@ function submitName() {
   if (!name) return;
   localStorage.setItem('userName', name);
    updateTitle();
-  loadHomeDashboard();
-}
+  loadHomePage();}
+
+  
 window.submitName = submitName;
 
 
@@ -90,8 +91,9 @@ async function loadHomePage() {
       .slice(0, 3);
     if (!recent.length) {
       if (noRecent) noRecent.style.display = "block";
-      return;
-    }
+      return;}
+
+
     if (noRecent) noRecent.style.display = "none";
     if (container) container.innerHTML = "";
   
@@ -100,20 +102,18 @@ async function loadHomePage() {
       
       //manually written card with a lot of innerhtml so that i can control layout
       //aided by gpt but manually edited
-      var card = document.createElement("div");
-      card.style.cssText = "background:var(--card-bg);border-radius:14px;padding:14px 16px;margin-bottom:12px;cursor:pointer;display:flex;align-items:center;gap:14px;box-shadow:0 0 0 0.5px var(--border-color);";
+     var card = document.createElement("div");
+      card.className = "recent-book-card";
       card.innerHTML =
-        '<div style="width:42px;height:58px;border-radius:5px;flex-shrink:0;background:' +
-        (book.coverUrl ? "none" : "linear-gradient(145deg,#3a3530,#2a2520)") +
-        ';box-shadow:2px 2px 6px rgba(0,0,0,0.14);overflow:hidden;">' +
-        (book.coverUrl ? '<img src="' + book.coverUrl + '" style="width:100%;height:100%;object-fit:cover;">' : "") +
-        '</div><div style="flex:1;min-width:0;">' +
-        '<div style="font-size:15px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + book.title + "</div>" +
-        '<div style="font-size:12px;color:var(--text-secondary);margin:3px 0 10px;">' + pct + "% complete</div>" +
-        '<div style="height:3px;background:var(--border-color);border-radius:99px;">' +
-        '<div style="width:' + pct + '%;height:100%;background:var(--accent);border-radius:99px;"></div>' +
-        "</div></div>" +
-        '<div style="color:var(--text-secondary);font-size:20px;flex-shrink:0;">›</div>';
+        '<div class="recent-book-thumb">' +
+        (book.coverUrl ? '<img src="' + book.coverUrl + '">' : "") +
+        '</div><div class="recent-book-info">' +
+        '<div class="recent-book-title">' + book.title + '</div>' +
+        '<div class="recent-book-pct">' + pct + '% complete</div>' +
+        '<div class="recent-book-bar-bg">' +
+        '<div class="recent-book-bar-fill" style="width:' + pct + '%;"></div>' +
+        '</div></div>' +
+        '<div class="recent-book-arrow">›</div>';
 
         card.addEventListener("click", function() {
         localStorage.setItem("lastOpenedBookId", book.id);
@@ -125,7 +125,7 @@ async function loadHomePage() {
     console.error("Failed to load recent books:", err);
     if (noRecent) noRecent.style.display = "block";
 }}
-window.loadHomeDashboard = loadHomePage;
+window.loadHomePage = loadHomePage;
 
 
 
@@ -211,21 +211,18 @@ function setStatus(msg, detail, pct) {
       //group into lines based on Y coordinate. if Y is within half a line height it's the same line. should work decently for most books
       var lines = [];
       var currentLine = [];
-      var lastY = null;
-      var lastHeight = 12;
+      var lastY = null, lastH = 12;
 
       items.forEach(function(item) {
-
-        //will group text fragments into line using half hte item's height
-        if (lastY === null || Math.abs(item.y - lastY) < lastHeight * 0.5) {
+        if (lastY === null || Math.abs(item.y - lastY) < lastH * 0.5)  {
           currentLine.push(item.str);
         } else {
           if (currentLine.length) lines.push(currentLine.join(" ").trim());
           currentLine = [item.str];
         }
         lastY = item.y;
-        lastHeight = item.height || lastHeight;
-      });
+        lastH = item.height || lastH;
+      } );
       if (currentLine.length) lines.push(currentLine.join(" ").trim());
 
       pages.push(lines.filter(function(l) { return l.length > 0; }));
@@ -236,11 +233,10 @@ function setStatus(msg, detail, pct) {
 
     setStatus("Detecting chapters…", "", 62);
 
-function isPageNumber(line) { 
-  return /^\d+$/.test(line.trim());}
 
 
-    var chapters = findChapters(pages, totalPages);
+
+    var chapters = findChapters(pages);
 
     setStatus("Building EPUB…", chapters.length + " chapters found", 75);
 
@@ -285,8 +281,8 @@ function isPageNumber(line) {
   return false;
 }
 
-function findChapters(pages, totalPages) {
-  
+function findChapters(pages) {
+
   pages = pages.map(function(pageLines) {
     return pageLines
       .map(function(l) {
@@ -306,20 +302,16 @@ function findChapters(pages, totalPages) {
   });
 
  
-var chapterPatterns = [
-  /^chapter\s+[\divxlcIVXLC]+/i,
-  /^chapter\s+\w+/i,
-  /^part\s+[\divxlcIVXLC]+/i,
-  /^prologue$/i,
-  /^epilogue$/i,
-  /^introduction$/i,
-  /^afterword$/i,
-  /^interlude$/i,
-  /^episode\s+\d+/i,          
-  /^\[chapter\s+\d+/i,
-  /^\[episode\s+\d+/i,
-  /^\[ep\.?\s+\d+/i,
-];
+//these are the patterns that actually show up in real books. might vary and need upgrading
+  var chapterPatterns = [
+    /^chapter\s+[\divxlcIVXLC]+/i,
+    /^chapter\s+\w+/i,
+    /^part\s+[\divxlcIVXLC]+/i,
+    /^prologue$/i,
+    /^epilogue$/i,
+    /^introduction$/i,
+    /^afterword$/i,
+  ];
 
 
 function isHeading(line) {
@@ -392,15 +384,12 @@ function isHeading(line) {
 //check if arithmetic criteron in complexity
   //if no chapters found, make one per N paragraphs
   if (chapters.length <= 1 && chapters[0] && chapters[0].paragraphs.length > 30) {
-    var allParas = chapters[0].paragraphs;
+    var all = chapters[0].paragraphs;
     chapters = [];
-    var groupSize = 20;
-    for (var i = 0; i < allParas.length; i += groupSize) {
-      chapters.push({
-        title: "Part " + (Math.floor(i / groupSize) + 1),
-        paragraphs: allParas.slice(i, i + groupSize)
-   });
-}}
+    for (var i = 0; i < all.length; i += 20) {
+      chapters.push({ title: "Part " + (Math.floor(i / 20) + 1), paragraphs: all.slice(i, i + 20) });
+     }
+  }
 
   //to htmll
   //section assited by ai when opened EPUB's kept watermarks and random characters
@@ -420,15 +409,17 @@ function isHeading(line) {
   };});}
 
 async function makeEpub(title, chapters) {
+  //mimetype has to be STORE not DEFLATE!!!
   var zip = new JSZip();
   zip.file("mimetype", "application/epub+zip", { compression: "STORE" });
   zip.folder("META-INF").file("container.xml",
-  '<?xml version="1.0"?><container version="1.0" xmlns="urn:oasis:names:tc:opendocument:xmlns:container"><rootfiles><rootfile full-path="OEBPS/content.opf" media-type="application/oebps-package+xml"/></rootfiles></container>'
+    '<?xml version="1.0"?><container version="1.0" xmlns="urn:oasis:names:tc:opendocument:xmlns:container"><rootfiles><rootfile full-path="OEBPS/content.opf" media-type="application/oebps-package+xml"/></rootfiles></container>'
 );
 
   var oebps = zip.folder("OEBPS");
 
   chapters.forEach(function(ch, i) {
+
     oebps.file("chapter" + (i + 1) + ".xhtml",
       '<?xml version="1.0" encoding="utf-8"?><!DOCTYPE html><html xmlns="http://www.w3.org/1999/xhtml">' +
       '<head><title>' + ch.title + '</title><style>' +
