@@ -1,4 +1,4 @@
-var myCache = "library-app";
+var myCache = "library-app-v2";
 
 // complexity- array with all the file's paths so it works offline + other js files as an additional librariess
 
@@ -21,21 +21,23 @@ var appFiles = [
   "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js",
   "https://unpkg.com/dexie/dist/dexie.mjs"
 
-];
+] ;
 
 
-self.addEventListener("install", function(event) {
+    self.addEventListener("install", function(event) {
   self.skipWaiting();
 
   event.waitUntil(
-    caches.open(myCache). then(function(cache)  {
-      
+    caches.open(myCache).then(function(cache)  {
     var i = 0;
       // loop throught and cache them one by on
       //appFiles is basically a collection that is iterated over with map() - cretiron c
       // allSettled () - if one fails it doen't crash everything
       // source:  https://developer.mozilla.org/en-US/docs/Web/API/Service_Worker_API/Using_Service_Workers
-    return Promise.allSettled(
+    
+    //// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise/allSettled
+
+      return Promise.allSettled(
   appFiles.map(function(url) {
     return cache.add(url).catch(function(err) {
       console.warn("Could not cache:", url, err);
@@ -83,7 +85,7 @@ self.addEventListener("fetch", function(event) {
           return response;
         }
 
-        //need to clone the new response into the xache for next
+        //need to copypasta the new response into the cache for next
       var copy = response.clone();
 
         caches.open(myCache).then(function(cache) {
