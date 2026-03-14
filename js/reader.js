@@ -322,7 +322,7 @@ var themeStyles = {
       rendition.themes.select(name);
 rendition.getContents().forEach(function(c) {  
   c.document.body.style.fontFamily = fonts[name];});
-localStorage.setItem("fontFamily_" + bookId, name);      var s = themeStyles[name];
+localStorage.setItem("readerTheme_" + bookId, name);     var s = themeStyles[name];
      document.body.style.background = s.bg;
 document.getElementById("reader-header").style.background = s.headerBg;
 var tcMeta = document.getElementById("theme-color-meta");
@@ -375,7 +375,7 @@ if (savedFont && fonts[savedFont]) {
     if (!btn) return;
     btn.addEventListener("click", function() {
       rendition.themes.override("font-family", fonts[name]);
-      localStorage.setItem("readerTheme_" + bookId, name);
+     localStorage.setItem("fontFamily_" + bookId, name);
       document.querySelectorAll("[id^='font-']").forEach(function(b) {
         b.classList.toggle("active", b.id === "font-" + name);
       });
@@ -401,14 +401,14 @@ if (savedFont && fonts[savedFont]) {
         left.className = "bookmark-page";
         left.innerHTML = 'p. ' + (bm.page || bm.pct + "%");
 
-        var removeBtn = document.createElement("button");
-        removeBtn.className = "bookmark-remove";
-        removeBtn.textContent = "Remove";
+        var del = document.createElement("button");
+        del.className = "bookmark-remove";
+        del.textContent = "Remove";
         
-        removeBtn.addEventListener("click", function() {
+        del.addEventListener("click", function() {
           var bms2 = getBookmarks(); bms2.splice(i, 1); saveBookmarks(bms2); item.remove(); updateBookmarkIcon();
         });
-        item.appendChild(left); item.appendChild(removeBtn); list.appendChild(item);
+        item.appendChild(left); item.appendChild(del); list.appendChild(item);
       } );
     }
     panel.style.display = "block";
@@ -441,12 +441,12 @@ if (savedFont && fonts[savedFont]) {
         del.className = "highlight-remove";
         del.textContent = "✕";
 
-        removeBtn.addEventListener("click", function() {
+        del.addEventListener("click", function() {
           var hls2 = getHighlights();
           rendition.annotations.remove(hl.cfi, "highlight");
           hls2.splice(i, 1); saveHighlights(hls2); item.remove();
         });
-        item.appendChild(left); item.appendChild(removeBtn); list.appendChild(item);
+        item.appendChild(left); item.appendChild(del); list.appendChild(item);
       });
     }
     panel.style.display = "block";
@@ -476,7 +476,7 @@ if (savedFont && fonts[savedFont]) {
      var hdr = document.createElement("div");
     hdr.className = "toc-header";
     hdr.textContent = "Contents";
-
+      drawer.appendChild(hdr);
     toc.forEach(function(item) {
       var row = document.createElement("div");
       row.className = "toc-row";
