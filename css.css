@@ -1,0 +1,646 @@
+/*base styles and variables for the Library PWA */
+/*initially self coded but later revamped a few times by claude ai to achieve a more ios native look */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* spent way too long on these. kept having to add new ones every time i added something */
+:root {
+  --bg-color: #f2f2f7;
+  --header-h: 44px;
+  --tabbar-h: 83px;
+  --accent: #96e282; /* dunja picked this theme */
+  --tab-on: #96e282;
+  --tab-off: #8e8e93;
+  --card-bg: #ffffff;
+  --text-color: #000000;
+  --text-secondary: #6e6e73;
+  --border-color: rgba(0,0,0,0.08);
+  --ease: 0.2s ease;}
+
+
+/* dark mode - dunja reads at night so this'll get used a lot*/
+/*will override basically everything. first attempt looked terrible */
+body.dark-theme {
+  --bg-color: #1c1c1e;
+  --card-bg: #2c2c2e;
+  --text-color: #ffffff;
+  --text-secondary: #8e8e93;
+  --border-color: rgba(255,255,255,0.08);
+  /* --accent stays the same in dark mode, tested it and it looked fine */
+}
+
+/* had to put both html AND body here because just body wasnt working. assited*/
+html, body {
+  height: 100%;
+  background: var(--bg-color);
+  color: var(--text-color);
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif;
+  overscroll-behavior: none; 
+  -webkit-font-smoothing: antialiased;
+  transition: background 0.3s ease, color 0.3s ease;
+}
+
+.app-header {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: var(--header-h);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 16px;
+  z-index: 1000;
+  background: var(--bg-color);
+  /*blur effect - webkit prefix needed for safari */
+  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(20px);
+  border-bottom: 0.5px solid var(--border-color);
+}
+
+.app-header h1 {
+  font-size: 17px;
+  font-weight: 600;
+  letter-spacing: -0.4px;
+  color: var(--text-color);
+  flex: 1;
+}
+
+#dark-mode-toggle {
+  background: none;
+  border: none;
+  color: var(--accent);
+  font-size: 14px;
+  font-weight: 500;
+  padding: 6px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+#dark-mode-toggle:hover {
+  background: var(--border-color);
+}
+
+/* this took ages to get right - content was going under the header and tab bar */
+.app-content {
+  padding: 20px 16px;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch; 
+
+  margin-top: var(--header-h);
+  margin-bottom: var(--tabbar-h);
+  max-height: calc(100vh - var(--header-h) - var(--tabbar-h));
+}
+section {
+  margin-bottom: 32px;
+  background: none;
+  border: none;
+  box-shadow: none;
+  padding: 0;
+}
+
+section h2 {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--text-color);
+
+  margin-bottom: 4px;
+  letter-spacing: -0.6px; }
+
+section p {
+  font-size: 15px;
+  color: var(--text-secondary);
+  margin-bottom: 20px;
+}
+
+/* 3 column grid like apple books. minmax(0, 1fr) stops overflow on small screens */
+/*first tried repeat(auto-fill, minmax(100px, 1fr)) first but the columns were inconsistent */
+#libraryList {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px 12px;
+  list-style: none;
+  margin: 0 0 20px 0;
+  padding: 0;
+  width: 100%;
+  align-items: start;
+}
+
+
+#libraryList li {
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+}
+
+#libraryList li::before {
+  display: none;
+}
+
+/* font-size 16px is important here - below that ios zooms in on focus which is annoying */
+input[type="text"],
+input[type="file"] {
+  width: 100%;
+  padding: 13px 16px;
+  font-size: 16px;
+  font-family: inherit;
+  border: none;
+  border-radius: 12px;
+  background: var(--card-bg);
+  color: var(--text-color);
+  box-shadow: 0 0 0 0.5px var(--border-color);
+  margin-bottom: 12px;
+  -webkit-appearance: none;
+  transition: box-shadow var(--ease);
+}
+
+input:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--accent);
+}
+
+/*list of all three selectors because plain "button" was too broad
+and was styling the tab bar buttons too */
+ button[type="submit"],
+button[type="button"],
+form button {
+  width: 100%;
+  padding: 14px;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  -webkit-appearance: none;
+  transition: opacity var(--ease), transform var(--ease);
+}
+button[type="submit"]:active,
+form button:active {
+  opacity: 0.8;
+  transform: scale(0.98);}
+
+/* tab bar height is 83px to account for iphone home indicator at the bottom */
+/* 83 = roughly 49px bar + 34px safe area. eyeballed it tbh */
+.app-tab-bar {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  height: var(--tabbar-h);
+  display: flex;
+  justify-content: space-around;
+  align-items: flex-start;
+  padding-top: 10px;
+  border-top: 0.5px solid var(--border-color);
+  background: var(--bg-color);
+  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(20px);
+  z-index: 1000;
+}
+
+.app-tab-bar button {
+  background: none;
+  border: none;
+  color: var(--tab-off);
+  font-size: 10px;
+  font-weight: 500; cursor: pointer;
+  font-family: inherit;
+  padding: 0;
+  width: 25%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  transition: color var(--ease);
+ }
+
+.app-tab-bar button:hover,
+.app-tab-bar button.active {
+  color: var(--tab-on);}
+
+.app-tab-bar button::before  {
+  font-size: 22px;
+  line-height: 1;
+}
+
+.app-tab-bar button:nth-child(1)::before { content: "⌂"; }
+.app-tab-bar button:nth-child(2)::before { content: "▤"; }
+.app-tab-bar button:nth-child(3)::before { content: "⇄";  }
+.app-tab-bar button:nth-child(4)::before { content: "?"; }
+/*make more subtle and iosy*/
+/*unicode icons from compart.com*/
+
+
+.ios-group {
+  background: var(--card-bg);
+  border-radius: 12px;
+  overflow: hidden;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  box-shadow: 0 0 0 0.5px var(--border-color);}
+
+.ios-group li {
+  padding: 13px 16px;
+  font-size: 16px;
+  color: var(--text-color);
+  border-bottom: 0.5px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+}
+
+.ios-group li:last-child {
+  border-bottom: none;
+}
+
+.ios-group li::after {
+  content: "›";
+  color: var(--text-secondary);
+  font-size: 18px;
+}
+
+  .fade-in {
+  animation: fadeIn 0.2s ease both ; }
+
+      .fade-in details summary::-webkit-details-marker { display: none; }
+    .fade-in details summary { user-select: none; -webkit-user-select: none; }
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* loading spinner shown during epub save and pdf conversion */
+
+/* loading spinner. only shows during epub save and pdf conversion */
+.spinner {
+  width: 36px;
+  height: 36px;
+  /* tried 40px but it looked too big on iphone se */
+  /*width: 40px; height: 40px; */
+  border-radius: 50%;
+  border: 3px solid rgba(255,255,255,0.2);
+  border-top-color: #fff;
+  animation: spin 0.8s linear infinite; }
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+  }
+
+
+/*new help Section. reused card style */
+.help-card {
+  background: var(--card-bg);
+  border-radius: 14px;
+  padding: 20px;
+  box-shadow: 0 0 0 0.5px var(--border-color);
+  margin-bottom: 28px;
+}
+
+.help-label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.8px;
+  color: var(--text-secondary);
+  margin-bottom: 12px;
+}
+
+.help-card h3 {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-color);
+  margin-bottom: 10px;
+  /*=reset letter space here because  h2 was also being affected  */
+  letter-spacing: normal;
+}
+
+.step-list {
+   display: flex;
+  flex-direction: column;
+  gap: 12px;
+  list-style: none;
+  padding: 0;
+  margin: 12px 0 0 0;}
+
+.step-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;}
+
+.step-list li::before {
+  display: none;
+}
+
+.step-list li p  {
+  margin: 0;
+  padding-top: 3px;
+}
+
+.step-number {
+  min-width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #1a1a1a;
+  font-size: 13px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  line-height: 1;
+}
+
+.faq-container {
+  background: var(--card-bg);
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 0 0 0.5px var(--border-color);
+  margin-bottom: 28px;
+}
+
+.faq-item {
+  border-bottom: 0.5px solid var(--border-color);
+}
+
+.faq-item:last-child {
+  border-bottom: none;
+}
+
+
+.faq-item summary {
+  list-style: none;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 16px;
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--text-color);
+  cursor: pointer;
+}
+
+.faq-item summary span {
+  color: var(--text-secondary);
+  font-size: 18px;
+  margin-left: 8px;
+}
+
+.faq-item p {
+  padding: 0 16px 15px;
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin: 0;
+  }
+
+.recent-book-card {
+  background: var(--card-bg);
+  border-radius: 14px;
+  padding: 14px 16px;
+  margin-bottom: 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  box-shadow: 0 0 0 0.5px var(--border-color);
+}
+.recent-book-thumb {
+  width: 42px;
+  height: 58px;
+  border-radius: 5px;
+  flex-shrink: 0;
+  background: linear-gradient(145deg,#3a3530,#2a2520);
+  box-shadow: 2px 2px 6px rgba(0,0,0,0.14);
+  overflow: hidden;
+}
+.recent-book-thumb img { width: 100%; height: 100%; object-fit: cover; }
+.recent-book-info { flex: 1; min-width: 0; }
+.recent-book-title {
+  font-size: 15px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.recent-book-pct {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin: 3px 0 10px;
+}
+.recent-book-bar-bg {
+  height: 3px;
+  background: var(--border-color);
+  border-radius: 99px;
+}
+.recent-book-bar-fill {
+  height: 100%;
+  background: var(--accent);
+  border-radius: 99px;
+}
+.recent-book-arrow {
+  color: var(--text-secondary);
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+
+.book-cover {
+  width: 100%;
+  aspect-ratio: 2/3;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 2px 4px 12px rgba(0,0,0,0.18);
+  margin-bottom: 6px;
+  position: relative;
+  background: linear-gradient(145deg,#3a3530,#2a2520);
+  }
+
+.book-cover img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.book-cover.finished img { opacity: 0.35; }
+.book-cover.no-cover.finished { opacity: 0.4; }
+.book-no-cover-label {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 10px;
+  opacity: 0.5;
+  }
+
+.book-done-badge {
+  position: absolute;
+  bottom: 6px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--accent);
+  color: #1a1a1a;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 99px;
+  white-space: nowrap;}
+
+  .book-title-label {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-color);
+  text-align: center;
+  margin-top: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 100%;
+}
+
+.book-title-label.finished {
+  color: var(--text-secondary);
+}
+
+.book-dots-btn {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  background: rgba(0,0,0,0.45);
+  color: #fff;
+  border: none;
+  border-radius: 99px;
+  font-size: 14px;
+  width: 26px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+  z-index: 2;
+}
+
+.book-menu-popup {
+  position: fixed;
+  background: var(--card-bg);
+  border-radius: 12px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.18);
+  z-index: 2000;
+  min-width: 160px;
+  overflow: hidden;
+  border: 0.5px solid var(--border-color);
+}  
+
+.book-menu-row {
+  padding: 13px 16px;
+  font-size: 15px;
+  color: var(--text-color);
+  cursor: pointer;
+  border-bottom: 0.5px solid var(--border-color);
+}
+
+.book-menu-row:last-child {
+  border-bottom: none;}
+
+.book-menu-row:active {
+  background: var(--border-color);
+}
+
+.book-menu-row.danger {
+  color: #ff453a; }
+
+
+  .toc-panel { position: fixed; inset: 0; z-index: 400; }
+.toc-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.35); }
+.toc-drawer {
+  position: fixed; bottom: 0; left: 0; right: 0;
+  background: var(--bg-color, #f2f2f7);
+  border-radius: 20px 20px 0 0;
+  max-height: 70vh; overflow-y: auto;
+  z-index: 401;
+  border-top: 0.5px solid rgba(0,0,0,0.08);
+  padding-bottom: 32px;
+}
+.toc-header {
+  padding: 20px; font-size: 17px; font-weight: 600;
+  border-bottom: 0.5px solid rgba(0,0,0,0.08);
+  position: sticky; top: 0;
+  background: var(--bg-color, #f2f2f7);
+}
+.toc-row {
+  padding: 14px 20px; font-size: 15px;
+  border-bottom: 0.5px solid rgba(0,0,0,0.08);
+  cursor: pointer; color: var(--text-color, #000);
+}
+.toc-row:active { background: rgba(0,0,0,0.05); }
+
+
+.bookmark-item {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 20px;
+  border-bottom: 0.5px solid rgba(0,0,0,0.08);
+}
+.bookmark-page { font-size: 15px; color: var(--text-color, #000); font-weight: 500; }
+.bookmark-remove {
+  background: none; border: 1px solid rgba(0,0,0,0.1);
+  border-radius: 8px; padding: 5px 10px;
+  font-size: 13px; color: #ff453a; cursor: pointer; width: auto;
+}
+
+
+.highlight-item {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  padding: 14px 20px;
+  border-bottom: 0.5px solid rgba(0,0,0,0.08);
+  gap: 12px;
+}
+.highlight-text-block {
+  font-size: 14px; color: var(--text-color, #000);
+  line-height: 1.5; flex: 1;
+  background: rgba(255,224,102,0.25);
+  border-radius: 6px; padding: 6px 8px;
+}
+.highlight-date { font-size: 11px; color: #8e8e93; margin-top: 4px; }
+.highlight-remove {
+  background: none; border: none;
+  font-size: 16px; color: #8e8e93; cursor: pointer;
+  padding: 0; width: auto; flex-shrink: 0;
+}
+
+
+
+
+.search-result-item {
+  padding: 10px 12px; font-size: 13px; color: var(--text-color, #000);
+  border-bottom: 0.5px solid rgba(0,0,0,0.08); cursor: pointer;
+  line-height: 1.4;
+}
+.search-result-item:active { background: var(--border-color); }
+
+#toast {
+  position: fixed; bottom: 100px; left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0,0,0,0.82); color: #fff;
+  padding: 10px 18px; border-radius: 16px;
+  font-size: 14px; z-index: 9999;
+  white-space: nowrap; opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+
+.btn-primary {
+  width: 100%;
+  padding: 14px;
+  background: var(--accent);
+  color: #1a1a1a;
+  border: none;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  margin-top: 16px;
+  display: block;}
